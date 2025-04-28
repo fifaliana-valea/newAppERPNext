@@ -1,0 +1,31 @@
+# Build Folders
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS Code
+.vscode/
+
+# Visual Studio
+.vs/
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite
+
+# Cache
+*.cache
+
+# Debug
+*.pdb
+
+# Others
+*.pidb
