@@ -25,47 +25,45 @@
             </div>
 
             <!-- Formulaire -->
-            <form asp-action="Index" method="post" class="login-form">
+            <form asp-action="Login" method="post" class="login-form">
                 @Html.AntiForgeryToken()
                 
                 <div class="input-group">
-                    <i class="fas fa-envelope input-icon"></i>
-                    <input type="email" id="email" name="email" placeholder=" " required>
-                    <label for="email">Adresse email</label>
+                    <i class="fas fa-user input-icon"></i>
+                    <input type="text" id="usr" name="usr" placeholder=" " required>
+                    <label for="usr">Login</label>
                     <div class="underline"></div>
                 </div>
                 
                 <div class="input-group">
                     <i class="fas fa-lock input-icon"></i>
-                    <input type="password" id="password" name="password" placeholder=" " required>
-                    <label for="password">Mot de passe</label>
+                    <input type="password" id="pwd" name="pwd" placeholder=" " required>
+                    <label for="pwd">Mot de passe</label>
                     <div class="underline"></div>
                     <button type="button" class="toggle-pw">
                         <i class="fas fa-eye"></i>
                     </button>
                 </div>
 
-                <!-- Mot de passe oublié en haut du bouton -->
-                <div class="forgot-pw-container">
-                    <a href="#" class="forgot-pw">Mot de passe oublié ?</a>
-                </div>
-                
+                @if (ViewData.ModelState.ErrorCount > 0)
+                {
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Identifiants incorrects</span>
+                    </div>
+                }
+
                 <button type="submit" class="login-btn">
                     <span class="btn-text">Se connecter</span>
                 </button>
             </form>
-
-            <!-- Bouton Continuer avec email -->
-            <button class="continue-btn">
-                <span class="btn-text">Continuer avec email</span>
-            </button>
         </div>
     </div>
 
     <script>
         // Toggle password visibility
         document.querySelector('.toggle-pw').addEventListener('click', function() {
-            const pwInput = document.getElementById('password');
+            const pwInput = document.getElementById('pwd');
             const icon = this.querySelector('i');
             
             if (pwInput.type === 'password') {
@@ -82,11 +80,17 @@
             input.addEventListener('focus', function() {
                 this.parentNode.querySelector('.underline').style.transform = 'scaleX(1)';
             });
+            
             input.addEventListener('blur', function() {
                 if (!this.value) {
                     this.parentNode.querySelector('.underline').style.transform = 'scaleX(0)';
                 }
             });
+            
+            // Initialiser l'état des champs
+            if (input.value) {
+                input.parentNode.querySelector('.underline').style.transform = 'scaleX(1)';
+            }
         });
     </script>
 </body>
