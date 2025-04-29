@@ -38,7 +38,6 @@ namespace MonProjetErpnext.Controllers.Login
             }
 
             HttpContext.Session.SetString("FullName", authResponse.FullName);
-            HttpContext.Session.SetString("HomePage", authResponse.HomePage);
             
             _logger.LogInformation($"Utilisateur connecté: {authResponse.FullName}");
             
