@@ -1,0 +1,93 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Connexion ERPNext";
+}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Logo -->
+            <div class="logo-container">
+                <div class="logo-animation">
+                    <i class="fas fa-cubes logo-icon"></i>
+                </div>
+                <h1>ERPNext</h1>
+            </div>
+
+            <!-- Formulaire -->
+            <form asp-action="Index" method="post" class="login-form">
+                @Html.AntiForgeryToken()
+                
+                <div class="input-group">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email" name="email" placeholder=" " required>
+                    <label for="email">Adresse email</label>
+                    <div class="underline"></div>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password" name="password" placeholder=" " required>
+                    <label for="password">Mot de passe</label>
+                    <div class="underline"></div>
+                    <button type="button" class="toggle-pw">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+
+                <!-- Mot de passe oublié en haut du bouton -->
+                <div class="forgot-pw-container">
+                    <a href="#" class="forgot-pw">Mot de passe oublié ?</a>
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    <span class="btn-text">Se connecter</span>
+                </button>
+            </form>
+
+            <!-- Bouton Continuer avec email -->
+            <button class="continue-btn">
+                <span class="btn-text">Continuer avec email</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        document.querySelector('.toggle-pw').addEventListener('click', function() {
+            const pwInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (pwInput.type === 'password') {
+                pwInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                pwInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+
+        // Animation des champs
+        document.querySelectorAll('.input-group input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentNode.querySelector('.underline').style.transform = 'scaleX(1)';
+            });
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentNode.querySelector('.underline').style.transform = 'scaleX(0)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

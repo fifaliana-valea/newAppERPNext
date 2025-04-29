@@ -8,8 +8,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseExceptionHandler("/Login/Error"); // Modifié pour pointer vers Login
     app.UseHsts();
 }
 
@@ -20,8 +19,9 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+// Configuration du routage modifiée
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Login}/{action=Index}/{id?}"); // Modifié pour utiliser LoginController par défaut
 
 app.Run();
