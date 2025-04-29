@@ -1,9 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using MonProjetErpnext.Models.Request;
+using MonProjetErpnext.Services.Login;
+using System.Threading.Tasks;
 
 namespace MonProjetErpnext.Controllers.Login
 {
     public class LoginController : Controller
     {
+        private readonly LoginService _loginService;
+        private readonly ILogger<LoginController> _logger;
+
+        public LoginController(LoginService loginService, ILogger<LoginController> logger)
+        {
+            _loginService = loginService;
+            _logger = logger;
+        }
 
         [HttpGet]
         public IActionResult Index()
@@ -11,43 +23,33 @@ namespace MonProjetErpnext.Controllers.Login
             return View();
         }
 
-
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Index(string username, string password, bool remember)
+        public async Task<IActionResult> Login(AuthRequest authRequest)
         {
-            if (string.IsNullOrEmpty(username))
+            if (!ModelState.IsValid)
+                return View("Index", authRequest);
+
+            var authResponse = await _loginService.LoginAsync(authRequest);
+
+            if (authResponse == null || authResponse.Message != "Logged In")
             {
-                ModelState.AddModelError("username", "Le nom d'utilisateur est requis");
+                ModelState.AddModelError(string.Empty, "Identifiants invalides");
+                return View("Index", authRequest);
             }
 
-            if (string.IsNullOrEmpty(password))
-            {
-                ModelState.AddModelError("password", "Le mot de passe est requis");
-            }
+            HttpContext.Session.SetString("FullName", authResponse.FullName);
+            HttpContext.Session.SetString("HomePage", authResponse.HomePage);
+            
+            _logger.LogInformation($"Utilisateur connecté: {authResponse.FullName}");
+            
+            return RedirectToAction("Index", "Home");
+        }
 
-            if (ModelState.IsValid)
-            {
-                
-                if (username == "admin" && password == "password")
-                {
-                    if (remember)
-                    {
-                        Response.Cookies.Append("RememberMe", "true", new CookieOptions
-                        {
-                            Expires = DateTime.Now.AddDays(30)
-                        });
-                    }
-
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Identifiants incorrects");
-                }
-            }
-
-            return View();
+        [HttpGet]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index");
         }
     }
 }
