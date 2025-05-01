@@ -12,5 +12,24 @@ namespace MonProjetErpnext.Models.Response
 
         [JsonPropertyName("full_name")]
         public string FullName { get; set; }
+
+        [JsonPropertyName("api_key")]
+        public string ApiKey { get; set; }
+
+        [JsonIgnore] // Ne pas désérialiser directement
+        public string ApiSecret { get; set; }
+
+        public void ParseApiKey()
+        {
+            if (!string.IsNullOrEmpty(ApiKey))
+            {
+                var parts = ApiKey.Split(':');
+                if (parts.Length == 2)
+                {
+                    ApiKey = parts[0];
+                    ApiSecret = parts[1];
+                }
+            }
+        }
     }
 }

@@ -21,23 +21,26 @@ namespace MonProjetErpnext.Services.Login
 
         public async Task<AuthResponse?> LoginAsync(AuthRequest authRequest)
         {
-            try 
+            try
             {
                 var jsonContent = JsonSerializer.Serialize(authRequest);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
                 var response = await _httpClient.PostAsync($"{_erpNextBaseUrl}/api/method/login", content);
 
-                response.EnsureSuccessStatusCode(); 
+                if (!response.IsSuccessStatusCode)
+                    return null;
 
                 var responseContent = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<AuthResponse>(responseContent) 
-                    ?? throw new Exception("La réponse de l'API est nulle") ;
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                
+                return JsonSerializer.Deserialize<AuthResponse>(responseContent, options);
             }
-            catch (Exception ex)
+            catch
             {
-                // Loguer l'erreurasd
-                Console.WriteLine($"Erreur lors de la connexion: {ex.Message}");
                 return null;
             }
         }
