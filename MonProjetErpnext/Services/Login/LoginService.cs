@@ -28,15 +28,15 @@ namespace MonProjetErpnext.Services.Login
 
                 var response = await _httpClient.PostAsync($"{_erpNextBaseUrl}/api/method/login", content);
 
-                response.EnsureSuccessStatusCode(); // Lève une exception si le statut n'est pas success
+                response.EnsureSuccessStatusCode(); 
 
                 var responseContent = await response.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<AuthResponse>(responseContent) 
-                    ?? throw new Exception("La réponse de l'API est nulle");
+                    ?? throw new Exception("La réponse de l'API est nulle") ;
             }
             catch (Exception ex)
             {
-                // Loguer l'erreur
+                // Loguer l'erreurasd
                 Console.WriteLine($"Erreur lors de la connexion: {ex.Message}");
                 return null;
             }
