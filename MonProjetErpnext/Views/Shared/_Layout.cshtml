@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - MonProjetErpnext</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+<<<<<<< Updated upstream
     <link rel="stylesheet" href="~/MonProjetErpnext.styles.css" asp-append-version="true" />
 </head>
 <body>
@@ -34,6 +35,319 @@
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
+=======
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --text-color: #2d3436;
+            --light-bg: #ffffff;
+            --border-color: #dfe6e9;
+            --hover-color: #f1f3ff;
+        }
+        
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            color: var(--text-color);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--light-bg);
+            position: fixed;
+            height: 100vh;
+            box-shadow: 0 0 30px rgba(108, 92, 231, 0.1);
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: none;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .erpnext-icon {
+            font-size: 2rem;
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .sidebar-title {
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: white;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .admin-icon {
+            background-color: rgba(108, 92, 231, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .admin-icon i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+        
+        .user-info h6 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+        
+        .user-info small {
+            color: #636e72;
+            font-size: 0.75rem;
+            display: block;
+            margin-top: 2px;
+        }
+        
+        .sidebar-menu {
+            padding: 15px 0;
+            list-style: none;
+            margin: 0;
+        }
+        
+        .sidebar-menu li a {
+            color: var(--text-color);
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            margin: 3px 10px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar-menu li a:hover {
+            background-color: var(--hover-color);
+            color: var(--primary-color);
+            transform: translateX(5px);
+        }
+        
+        .sidebar-menu li.active a {
+            background-color: rgba(108, 92, 231, 0.1);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .sidebar-menu li.active a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background-color: var(--primary-color);
+        }
+        
+        .sidebar-menu li a i {
+            margin-right: 12px;
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu li a:hover i {
+            transform: scale(1.1);
+        }
+        
+        .badge-notification {
+            margin-left: auto;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        
+        .sidebar-footer {
+            padding: 15px;
+            background-color: var(--light-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            padding: 8px 15px;
+            border-radius: 6px;
+        }
+        
+        .logout-btn:hover {
+            background-color: rgba(108, 92, 231, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .logout-btn i {
+            margin-right: 8px;
+            font-size: 1rem;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+            padding: 30px;
+            transition: all 0.3s;
+        }
+        
+        /* Responsive */
+        @@media (max-width: 992px) {
+            .sidebar {
+                margin-left: -280px;
+            }
+            .sidebar.active {
+                margin-left: 0;
+            }
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
+        }
+        
+        /* Animation */
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .sidebar-menu li {
+            animation: fadeIn 0.4s ease forwards;
+            opacity: 0;
+        }
+        
+        .sidebar-menu li:nth-child(1) { animation-delay: 0.1s; }
+        .sidebar-menu li:nth-child(2) { animation-delay: 0.2s; }
+        .sidebar-menu li:nth-child(3) { animation-delay: 0.3s; }
+        .sidebar-menu li:nth-child(4) { animation-delay: 0.4s; }
+        .sidebar-menu li:nth-child(5) { animation-delay: 0.5s; }
+        .sidebar-menu li:nth-child(6) { animation-delay: 0.6s; }
+        .sidebar-menu li:nth-child(7) { animation-delay: 0.7s; }
+        .sidebar-menu li:nth-child(8) { animation-delay: 0.8s; }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="erpnext-icon">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <h5 class="sidebar-title">ERPNext</h5>
+        </div>
+        
+        <div class="sidebar-content">
+            <div class="user-profile">
+                <div class="admin-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div class="user-info">
+                    <h6>@User.Identity?.Name</h6>
+                    <small>Administrateur</small>
+                </div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li>
+                    <a asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-speedometer2"></i> Tableau de bord
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Fournisseurs" asp-action="Index">
+                        <i class="bi bi-people"></i> Fournisseurs
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Devis" asp-action="Index">
+                        <i class="bi bi-file-earmark-text"></i> Demandes de devis
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Prix" asp-action="Index">
+                        <i class="bi bi-tag"></i> Mise à jour des prix
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Commandes" asp-action="Index">
+                        <i class="bi bi-cart3"></i> Commandes
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Factures" asp-action="Index">
+                        <i class="bi bi-receipt"></i> Factures
+                        <span class="badge badge-notification">3</span>
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Comptabilite" asp-action="Index">
+                        <i class="bi bi-calculator"></i> Comptabilité
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="sidebar-footer">
+            <a asp-controller="Login" asp-action="Logout" class="logout-btn">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Déconnexion</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        @RenderBody()
+>>>>>>> Stashed changes
     </div>
 
     <footer class="border-top footer text-muted">
