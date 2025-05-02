@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-namespace MonProjetErpnext.Models;
+namespace MonProjetErpnext.Models.Suppliers;
 public class Supplier
 {
     [JsonPropertyName("name")]

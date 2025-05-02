@@ -11,11 +11,11 @@ namespace MonProjetErpnext.Controllers.Login
 {
     public class LoginController : Controller
     {
-        private readonly LoginService _loginService;
+        private readonly ILoginService _loginService;
         private readonly ILogger<LoginController> _logger;
 
         public LoginController(
-            LoginService loginService, 
+            ILoginService loginService, 
             ILogger<LoginController> logger)
         {
             _loginService = loginService;

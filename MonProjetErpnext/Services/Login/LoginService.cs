@@ -12,7 +12,7 @@ using MonProjetErpnext.Models.Response;
 
 namespace MonProjetErpnext.Services.Login
 {
-    public class LoginService
+    public class LoginService : ILoginService
     {
         private readonly HttpClient _httpClient;
         private readonly string _erpNextBaseUrl;
@@ -59,6 +59,8 @@ namespace MonProjetErpnext.Services.Login
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Login failed with status {StatusCode}: {ErrorContent}", 
+                        response.StatusCode, errorContent);
                     throw new HttpRequestException($"Erreur HTTP: {response.StatusCode} - {errorContent}");
                 }
 
@@ -74,7 +76,7 @@ namespace MonProjetErpnext.Services.Login
                         {
                             HttpOnly = true,
                             Secure = true,
-                            SameSite = SameSiteMode.Lax,
+                            SameSite = SameSiteMode.Strict,
                             Expires = DateTimeOffset.Now.AddHours(8),
                             Path = "/"
                         });
@@ -88,13 +90,14 @@ namespace MonProjetErpnext.Services.Login
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, authResponse.FullName),
-                        new Claim("ERPNextSession", sidCookie?.Value ?? string.Empty)
+                        new Claim("ERPNextSession", sidCookie?.Value ?? string.Empty),
+                        new Claim("LastLogin", DateTime.UtcNow.ToString("o"))
                     };
 
                     var claimsIdentity = new ClaimsIdentity(
                         claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                    await _httpContextAccessor.HttpContext.SignInAsync(
+                    await _httpContextAccessor.HttpContext!.SignInAsync(
                         CookieAuthenticationDefaults.AuthenticationScheme,
                         new ClaimsPrincipal(claimsIdentity),
                         new AuthenticationProperties
@@ -108,29 +111,57 @@ namespace MonProjetErpnext.Services.Login
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erreur dans LoginAsync");
+                _logger.LogError(ex, "Erreur dans LoginAsync pour l'utilisateur {Username}", authRequest.Usr);
                 throw;
             }
         }
 
-        public async Task<HttpResponseMessage> MakeAuthenticatedRequest(HttpMethod method, string endpoint, HttpContent? content = null)
+        public async Task<HttpResponseMessage> MakeAuthenticatedRequest(
+            HttpMethod method, 
+            string endpoint, 
+            HttpContent? content = null)
         {
-            var sidCookie = _httpContextAccessor.HttpContext?.Request.Cookies["erpnext_sid"];
-            
-            if (string.IsNullOrEmpty(sidCookie))
+            try
             {
-                throw new UnauthorizedAccessException("Session invalide");
-            }
+                var sidCookie = _httpContextAccessor.HttpContext?.Request.Cookies["erpnext_sid"];
+                
+                if (string.IsNullOrEmpty(sidCookie))
+                {
+                    _logger.LogWarning("Tentative de requête authentifiée sans session valide");
+                    throw new UnauthorizedAccessException("Session invalide - Veuillez vous reconnecter");
+                }
 
-            var request = new HttpRequestMessage(method, endpoint);
-            request.Headers.Add("Cookie", $"sid={sidCookie}");
-            
-            if (content != null)
+                using var request = new HttpRequestMessage(method, endpoint);
+                
+                request.Headers.Clear();
+                request.Headers.Add("Accept", "application/json");
+                request.Headers.Add("Cookie", $"sid={sidCookie}");
+                request.Headers.Add("X-Requested-With", "XMLHttpRequest");
+                
+                if (content != null)
+                {
+                    request.Content = content;
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                }
+
+                var response = await _httpClient.SendAsync(request);
+                
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    _logger.LogWarning("Session expirée lors de l'accès à {Endpoint}", endpoint);
+                    throw new UnauthorizedAccessException("Session expirée");
+                }
+
+                _logger.LogDebug("Requête vers {Endpoint} - Statut: {StatusCode}", 
+                    endpoint, response.StatusCode);
+                
+                return response;
+            }
+            catch (Exception ex)
             {
-                request.Content = content;
+                _logger.LogError(ex, "Erreur dans MakeAuthenticatedRequest vers {Endpoint}", endpoint);
+                throw;
             }
-
-            return await _httpClient.SendAsync(request);
         }
     }
 }
