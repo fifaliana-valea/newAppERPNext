@@ -1,0 +1,28 @@
+/* Style pour la pagination */
+.pagination {
+    margin-top: 20px;
+}
+
+.page-item.active .page-link {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.page-link {
+    color: #4e73df;
+}
+
+/* Style pour le tableau */
+.table-responsive {
+    overflow-x: auto;
+}
+
+#dataTable {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+}
+
+#dataTable th {
+    background-color: #f8f9fc;
+}

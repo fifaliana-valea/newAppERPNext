@@ -1,12 +1,18 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.CookiePolicy;
 using MonProjetErpnext.Services.Login;
+using MonProjetErpnext.Services;
+using MonProjetErpnext.Services.Suppliers;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configuration des services
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession();
+
+builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
 
 // Configuration de l'authentification
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
