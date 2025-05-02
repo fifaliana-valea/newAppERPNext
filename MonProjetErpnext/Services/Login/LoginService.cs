@@ -38,7 +38,7 @@ namespace MonProjetErpnext.Services.Login
 
         public async Task<AuthResponse?> LoginAsync(AuthRequest authRequest)
         {
-            try
+            try 
             {
                 var jsonContent = JsonSerializer.Serialize(authRequest);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
@@ -49,18 +49,6 @@ namespace MonProjetErpnext.Services.Login
                     CookieContainer = new CookieContainer()
                 };
 
-<<<<<<< Updated upstream
-                if (!response.IsSuccessStatusCode)
-                    return null;
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-                
-                return JsonSerializer.Deserialize<AuthResponse>(responseContent, options);
-=======
                 using var client = new HttpClient(handler) 
                 {
                     BaseAddress = new Uri(_erpNextBaseUrl)
@@ -74,7 +62,6 @@ namespace MonProjetErpnext.Services.Login
                     throw new HttpRequestException($"Erreur HTTP: {response.StatusCode} - {errorContent}");
                 }
 
-                // Récupérer le cookie sid
                 var cookies = handler.CookieContainer.GetCookies(new Uri(_erpNextBaseUrl));
                 var sidCookie = cookies["sid"];
 
@@ -118,16 +105,11 @@ namespace MonProjetErpnext.Services.Login
                 }
 
                 return authResponse;
->>>>>>> Stashed changes
             }
-            catch
+            catch (Exception ex)
             {
-<<<<<<< Updated upstream
-                return null;
-=======
                 _logger.LogError(ex, "Erreur dans LoginAsync");
                 throw;
->>>>>>> Stashed changes
             }
         }
 

@@ -1,41 +1,12 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MonProjetErpnext</title>
+    <title>@ViewData["Title"] - ERPNext Manager</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-<<<<<<< Updated upstream
-    <link rel="stylesheet" href="~/MonProjetErpnext.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MonProjetErpnext</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-=======
     <style>
         :root {
             --sidebar-width: 280px;
@@ -65,8 +36,6 @@
             z-index: 1000;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-right: none;
-            display: flex;
-            flex-direction: column;
         }
         
         .sidebar-header {
@@ -95,23 +64,18 @@
             margin: 0;
         }
         
-        .sidebar-content {
-            flex: 1;
-            overflow-y: auto;
-        }
-        
         .user-profile {
             display: flex;
             align-items: center;
-            padding: 15px 20px;
+            padding: 25px 20px;
             background-color: white;
             border-bottom: 1px solid var(--border-color);
         }
         
         .admin-icon {
             background-color: rgba(108, 92, 231, 0.1);
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -121,21 +85,21 @@
         
         .admin-icon i {
             color: var(--primary-color);
-            font-size: 1.2rem;
+            font-size: 1.5rem;
         }
         
         .user-info h6 {
             margin: 0;
             font-weight: 600;
             color: var(--text-color);
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
         
         .user-info small {
             color: #636e72;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             display: block;
-            margin-top: 2px;
+            margin-top: 3px;
         }
         
         .sidebar-menu {
@@ -146,13 +110,13 @@
         
         .sidebar-menu li a {
             color: var(--text-color);
-            padding: 12px 25px;
+            padding: 14px 25px;
             display: flex;
             align-items: center;
             text-decoration: none;
             transition: all 0.3s ease;
             font-weight: 500;
-            margin: 3px 10px;
+            margin: 5px 10px;
             border-radius: 8px;
             position: relative;
             overflow: hidden;
@@ -182,7 +146,7 @@
         
         .sidebar-menu li a i {
             margin-right: 12px;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             width: 24px;
             text-align: center;
             transition: all 0.3s;
@@ -196,40 +160,9 @@
             margin-left: auto;
             background-color: var(--primary-color);
             color: white;
-            font-size: 0.65rem;
-            padding: 2px 6px;
+            font-size: 0.7rem;
+            padding: 3px 8px;
             border-radius: 10px;
-        }
-        
-        .sidebar-footer {
-            padding: 15px;
-            background-color: var(--light-bg);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .logout-btn {
-            display: flex;
-            align-items: center;
-            color: var(--text-color);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-            padding: 8px 15px;
-            border-radius: 6px;
-        }
-        
-        .logout-btn:hover {
-            background-color: rgba(108, 92, 231, 0.1);
-            color: var(--primary-color);
-        }
-        
-        .logout-btn i {
-            margin-right: 8px;
-            font-size: 1rem;
         }
         
         /* Main Content */
@@ -280,84 +213,91 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <div class="erpnext-icon">
-                <i class="bi bi-box-seam"></i>
+                <i class="bi bi-box-seam"></i> <!-- Icône alternative pour ERP -->
             </div>
             <h5 class="sidebar-title">ERPNext</h5>
         </div>
         
-        <div class="sidebar-content">
-            <div class="user-profile">
-                <div class="admin-icon">
-                    <i class="bi bi-shield-check"></i>
-                </div>
-                <div class="user-info">
-                    <h6>@User.Identity?.Name</h6>
-                    <small>Administrateur</small>
-                </div>
+        <div class="user-profile">
+            <div class="admin-icon">
+                <i class="bi bi-shield-check"></i>
             </div>
-            
-            <ul class="sidebar-menu">
-                <li>
-                    <a asp-controller="Home" asp-action="Index">
-                        <i class="bi bi-speedometer2"></i> Tableau de bord
-                    </a>
-                </li>
-                <li>
-                    <a asp-controller="Fournisseurs" asp-action="Index">
-                        <i class="bi bi-people"></i> Fournisseurs
-                    </a>
-                </li>
-                <li>
-                    <a asp-controller="Devis" asp-action="Index">
-                        <i class="bi bi-file-earmark-text"></i> Demandes de devis
-                    </a>
-                </li>
-                <li>
-                    <a asp-controller="Prix" asp-action="Index">
-                        <i class="bi bi-tag"></i> Mise à jour des prix
-                    </a>
-                </li>
-                <li>
-                    <a asp-controller="Commandes" asp-action="Index">
-                        <i class="bi bi-cart3"></i> Commandes
-                    </a>
-                </li>
-                <li>
-                    <a asp-controller="Factures" asp-action="Index">
-                        <i class="bi bi-receipt"></i> Factures
-                        <span class="badge badge-notification">3</span>
-                    </a>
-                </li>
-                <li>
-                    <a asp-controller="Comptabilite" asp-action="Index">
-                        <i class="bi bi-calculator"></i> Comptabilité
-                    </a>
-                </li>
-            </ul>
+            <div class="user-info">
+                <h6>@User.Identity?.Name</h6>
+                <small>Administrateur</small>
+            </div>
         </div>
         
-        <div class="sidebar-footer">
-            <a asp-controller="Login" asp-action="Logout" class="logout-btn">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Déconnexion</span>
-            </a>
-        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-speedometer2"></i> Tableau de bord
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Fournisseurs" asp-action="Index">
+                    <i class="bi bi-people"></i> Fournisseurs
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Devis" asp-action="Index">
+                    <i class="bi bi-file-earmark-text"></i> Demandes de devis
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Prix" asp-action="Index">
+                    <i class="bi bi-tag"></i> Mise à jour des prix
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Commandes" asp-action="Index">
+                    <i class="bi bi-cart3"></i> Commandes
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Factures" asp-action="Index">
+                    <i class="bi bi-receipt"></i> Factures
+                    <span class="badge badge-notification">3</span>
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Comptabilite" asp-action="Index">
+                    <i class="bi bi-calculator"></i> Comptabilité
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Login" asp-action="Logout">
+                    <i class="bi bi-box-arrow-right"></i> Déconnexion
+                </a>
+            </li>
+        </ul>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
         @RenderBody()
->>>>>>> Stashed changes
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - MonProjetErpnext - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Toggle sidebar on mobile
+        $('#sidebarToggle').click(function() {
+            $('.sidebar').toggleClass('active');
+        });
+        
+        // Highlight active menu item
+        $(document).ready(function() {
+            var current = location.pathname;
+            $('.sidebar-menu li a').each(function() {
+                var $this = $(this);
+                if ($this.attr('href') === current) {
+                    $this.parent().addClass('active');
+                }
+            });
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
