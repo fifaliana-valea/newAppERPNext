@@ -4,6 +4,9 @@ namespace MonProjetErpnext.Models.Suppliers
 {
     public class QuotationItem
     {
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+
         [JsonPropertyName("item_code")]
         public string ItemCode { get; set; } = string.Empty;
         
@@ -17,9 +20,9 @@ namespace MonProjetErpnext.Models.Suppliers
         public decimal Rate { get; set; }  // Prix unitaire actuel (modifiable)
         
         [JsonPropertyName("price_list_rate")]
-        public decimal PriceListRate { get; set; }  // Prix catalogue de référence
+        public decimal? PriceListRate { get; set; }  // Prix catalogue de référence
         
-        [JsonPropertyName("base_rate")]
+        [JsonIgnore] // Ne pas sérialiser cette propriété pour l'API
         public decimal BaseRate { get; set; }  // Prix unitaire original
         
         [JsonPropertyName("qty")]

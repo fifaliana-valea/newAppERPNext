@@ -47,6 +47,7 @@ namespace MonProjetErpnext.Controllers.Login
 
                 _logger.LogInformation("Utilisateur connecté: {FullName}", authResponse.FullName);
                 HttpContext.Session.SetString("FullName", authResponse.FullName);
+                _logger.LogInformation("Utilisateur connecté 2: {FullName}", HttpContext.Session.GetString("FullName"));
                 
                 return LocalRedirect(returnUrl ?? "/Home");
             }

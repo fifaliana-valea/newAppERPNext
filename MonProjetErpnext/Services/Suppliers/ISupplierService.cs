@@ -8,6 +8,6 @@ namespace MonProjetErpnext.Services.Suppliers
     {
         Task<List<Supplier>> GetSuppliers();
         Task<List<SupplierQuotation>> GetSupplierQuotationsWithItems(string supplierId);
-        Task<bool> UpdateQuotationItemRate(string quotationName, string itemCode, decimal newRate, decimal quantity);
+        Task<bool> UpdateQuotationItemRate(string itemName, decimal newRate, decimal quantity);
     }
 }

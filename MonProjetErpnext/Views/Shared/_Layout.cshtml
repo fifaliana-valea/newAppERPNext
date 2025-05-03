@@ -36,6 +36,8 @@
             z-index: 1000;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-right: none;
+            display: flex;
+            flex-direction: column;
         }
         
         .sidebar-header {
@@ -203,9 +205,12 @@
         .sidebar-menu li:nth-child(3) { animation-delay: 0.3s; }
         .sidebar-menu li:nth-child(4) { animation-delay: 0.4s; }
         .sidebar-menu li:nth-child(5) { animation-delay: 0.5s; }
-        .sidebar-menu li:nth-child(6) { animation-delay: 0.6s; }
-        .sidebar-menu li:nth-child(7) { animation-delay: 0.7s; }
-        .sidebar-menu li:nth-child(8) { animation-delay: 0.8s; }
+        
+        /* Style pour le menu de déconnexion */
+        .logout-menu {
+            margin-top: auto;
+            padding-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -213,7 +218,7 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <div class="erpnext-icon">
-                <i class="bi bi-box-seam"></i> <!-- Icône alternative pour ERP -->
+                <i class="bi bi-box-seam"></i>
             </div>
             <h5 class="sidebar-title">ERPNext</h5>
         </div>
@@ -223,44 +228,49 @@
                 <i class="bi bi-shield-check"></i>
             </div>
             <div class="user-info">
-                <h6>@User.Identity?.Name</h6>
-                <small>Administrateur</small>
+                <div class="user-info">
+                    <h6>@Context.Session.GetString("FullName")</h6>
+                    <small>@User.Identity?.Name</small>
+                </div>
             </div>
         </div>
         
-        <ul class="sidebar-menu">
-            <li>
-                <a asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-speedometer2"></i> Tableau de bord
-                </a>
-            </li>
-            <li>
-                <a asp-controller="Suppliers" asp-action="Index">
-                    <i class="bi bi-people"></i> Fournisseurs
-                </a>
-            </li>
-            <li>
-                <a asp-controller="PurchaseOrder" asp-action="Index">
-                    <i class="bi bi-cart3"></i> Commandes
-                </a>
-            </li>
-            <li>
-                <a asp-controller="PurchaseInvoice" asp-action="Index">
-                    <i class="bi bi-receipt"></i> Factures
+        <!-- Conteneur flexible pour le contenu de la sidebar -->
+        <div class="d-flex flex-column h-100">
+            <!-- Menu principal -->
+            <ul class="sidebar-menu">
+                <li>
+                    <a asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-speedometer2"></i> Tableau de bord
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Suppliers" asp-action="Index">
+                        <i class="bi bi-people"></i> Fournisseurs
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="PurchaseOrder" asp-action="Index">
+                        <i class="bi bi-cart3"></i> Commandes
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="PurchaseInvoice" asp-action="Index">
+                        <i class="bi bi-receipt"></i> Factures
                     @* <span class="badge badge-notification">3</span> *@
-                </a>
-            </li>
-            <li>
-                <a asp-controller="Comptabilite" asp-action="Index">
-                    <i class="bi bi-calculator"></i> Comptabilité
-                </a>
-            </li>
-            <li>
-                <a asp-controller="Login" asp-action="Logout">
-                    <i class="bi bi-box-arrow-right"></i> Déconnexion
-                </a>
-            </li>
-        </ul>
+                    </a>
+                </li>
+            </ul>
+            
+            <!-- Menu de déconnexion en bas -->
+            <ul class="sidebar-menu logout-menu">
+                <li>
+                    <a asp-controller="Login" asp-action="Logout">
+                        <i class="bi bi-box-arrow-right"></i> Déconnexion
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <!-- Main Content -->
