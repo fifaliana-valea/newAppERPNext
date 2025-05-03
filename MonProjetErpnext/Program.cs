@@ -4,6 +4,7 @@ using MonProjetErpnext.Services.Login;
 using MonProjetErpnext.Services;
 using MonProjetErpnext.Services.Suppliers;
 using MonProjetErpnext.Services.PurchasInvoice;
+using MonProjetErpnext.Services.PurchaseOrder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,8 @@ builder.Services.AddSession();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IPurchasInvoiceService, PurchasInvoiceService>();
+builder.Services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
+
 
 // Configuration de l'authentification
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
