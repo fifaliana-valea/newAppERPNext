@@ -224,6 +224,11 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="quotation-title">@ViewData["Title"]</h2>
         <div>
+            @* <a href="@Url.Action("RefreshCache", new { supplierId = ViewBag.SupplierId, returnUrl = Context.Request.Path })" 
+            class="btn btn-info refresh-cache-btn mr-2"
+            title="Rafraîchir les données depuis la source">
+                <i class="fas fa-sync-alt"></i> Rafraîchir
+            </a> *@
             <a href="@Url.Action("Index")" class="btn btn-secondary back-btn">
                 <i class="fas fa-arrow-left"></i> Retour aux fournisseurs
             </a>
