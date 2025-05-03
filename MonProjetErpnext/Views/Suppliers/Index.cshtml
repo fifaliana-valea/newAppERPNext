@@ -39,7 +39,7 @@
                                 <td>@supplier.Name</td>
                                 <td>@supplier.SupplierName</td>
                                 <td>
-                                    <form asp-controller="Suppliers" asp-action="GetSupplierQuotations" method="post">
+                                    <form asp-controller="Suppliers" asp-action="GetSupplierQuotations" method="get">
                                         <input type="hidden" name="supplierId" value="@supplier.Name" />
                                         <button type="submit" class="btn btn-info btn-sm">
                                             Voir devis

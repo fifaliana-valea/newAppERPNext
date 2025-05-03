@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.CookiePolicy;
 using MonProjetErpnext.Services.Login;
 using MonProjetErpnext.Services;
 using MonProjetErpnext.Services.Suppliers;
+using MonProjetErpnext.Services.PurchasInvoice;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddSession();
 
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
+builder.Services.AddScoped<IPurchasInvoiceService, PurchasInvoiceService>();
 
 // Configuration de l'authentification
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
