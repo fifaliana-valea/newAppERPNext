@@ -8,5 +8,6 @@ namespace MonProjetErpnext.Services.PurchasInvoice
     public interface IPurchasInvoiceService
     {
         Task<List<PurchaseInvoice>> GetPurchaseInvoiceWithItems(string status = null);
+         Task<byte[]> DownloadPurchaseInvoicePdf(string invoiceName);
     }
 }
