@@ -6,13 +6,231 @@
     int totalItems = ViewBag.TotalItems ?? 0;
     int totalPages = ViewBag.TotalPages ?? 1;
 }
+<style>
+/* Styles communs aux commandes et factures */
+:root {
+    --primary-color: #6c5ce7;
+    --primary-light: #a29bfe;
+    --light-bg: #f8f9fa;
+    --border-color: #e0e0e0;
+    --hover-color: #f1f1f1;
+    --text-color: #333;
+    --shadow-color: rgba(108, 92, 231, 0.1);
+}
 
+/* Conteneur principal avec bordure violette */
+.card {
+    background-color: var(--light-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px var(--shadow-color);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-left: 4px solid var(--primary-color);
+    border-right: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    animation: fadeIn 0.4s ease forwards;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: 0 6px 25px rgba(108, 92, 231, 0.15);
+    transform: translateY(-3px);
+}
+
+/* Effet de surbrillance sur la bordure gauche */
+.card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background: linear-gradient(to bottom, var(--primary-color), var(--primary-light));
+    z-index: 2;
+}
+
+.card-header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.card-title {
+    color: var(--primary-color);
+    font-weight: 600;
+    position: relative;
+    padding-left: 15px;
+}
+
+.card-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+}
+
+
+.scrollable-table {
+    max-height: 300px;
+    overflow-y: auto;
+    display: block;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(to right, var(--primary-color), #7b6ce6);
+    color: white;
+    z-index: 1;
+    border-bottom: none;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    padding: 12px 15px;
+}
+
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f5ff;
+    transform: scale(1.005);
+}
+
+.table tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    border-top: 1px solid #f1f1f1;
+}
+
+/* Pagination améliorée */
+.pagination-container {
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+}
+
+.page-item.active .page-link {
+    background: linear-gradient(to right, var(--primary-color), #7b6ce6);
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+.page-link {
+    color: var(--primary-color);
+    border: 1px solid var(--border-color);
+    margin: 0 5px;
+    border-radius: 6px !important;
+    transition: all 0.3s ease;
+    min-width: 40px;
+    text-align: center;
+    padding: 0.5rem 0.75rem;
+}
+
+.page-link:hover {
+    color: white;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+/* Filtres améliorés */
+.filter-form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 3px 10px var(--shadow-color);
+}
+
+.form-control {
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
+}
+
+/* Animations */
+@@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@@media (max-width: 768px) {
+    .order-container {
+        padding: 1.5rem;
+    }
+    
+    .info-label, .info-value {
+        font-size: 0.9rem;
+    }
+    
+    .order-title {
+        font-size: 1.25rem;
+    }
+    
+    .table thead {
+        display: none;
+    }
+    
+    .table, .table tbody, .table tr, .table td {
+        display: block;
+        width: 100%;
+    }
+    
+    .table tr {
+        margin-bottom: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .table td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+        border-top: 1px solid #f1f1f1;
+    }
+    
+    .table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        width: calc(50% - 15px);
+        padding-right: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+}
+</style>
 <div class="container mt-4">
     <h2>@ViewData["Title"]</h2>
 
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">Fournisseurs</h6>
+            <h6 class="card-title">Fournisseurs</h6>
             <div>
                 <select class="form-control form-control-sm" style="width: 100px;" 
                         onchange="updatePageSize(this.value)">

@@ -10,6 +10,7 @@ using MonProjetErpnext.Models;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System;
+using Microsoft.Extensions.Logging;
 
 namespace MonProjetErpnext.Controllers.Suppliers
 {
@@ -20,9 +21,19 @@ namespace MonProjetErpnext.Controllers.Suppliers
         private const int DefaultPageSize = 10;
         private const int QuotationsPageSize = 1; // Un devis par page
 
-        public SuppliersController(ISupplierService SupplierService)
+        private readonly ILogger<SuppliersController> _logger;
+
+        private readonly IConfiguration _configuration;
+
+        // Correction ici : suppression du underscore avant logger dans les paramètres
+        public SuppliersController(
+            ILogger<SuppliersController> logger,
+            ISupplierService supplierService,
+            IConfiguration configuration)
         {
-            _supplierService = SupplierService;
+            _supplierService = supplierService;
+            _logger = logger;
+            _configuration = configuration;
         }
 
         // Liste paginée des fournisseurs
@@ -71,11 +82,14 @@ namespace MonProjetErpnext.Controllers.Suppliers
                 ViewBag.TotalItems = allQuotations.Count;
                 ViewBag.TotalPages = allQuotations.Count; // 1 item = 1 page
                 ViewBag.SupplierId = supplierId;
+                ViewBag.ErpNextBaseUrl = _configuration["ErpNext:BaseUrl"];
+
 
                 return View("Quotations", quotation);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Erreur lors de la récupération des devis");
                 return View("Error", new ErrorViewModel { 
                     RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
                     ErrorMessage = ex.Message 
@@ -83,55 +97,39 @@ namespace MonProjetErpnext.Controllers.Suppliers
             }
         }
 
-        // GET: Page de modification du prix
-        public IActionResult EditItemPrice(string supplierName,string quotationName, string itemCode, decimal currentPrice, decimal quantity, string itemName, string unitOfMeasure)
-        {
-            var model = new EditPriceViewModel
-            {
-                SupplierName = supplierName,
-                QuotationName = quotationName,
-                ItemCode = itemCode,
-                ItemName = itemName,
-                UnitOfMeasure = unitOfMeasure,
-                Quantity = quantity,
-                CurrentPrice = currentPrice,
-                NewPrice = currentPrice // Initialiser avec le prix actuel
-            };
-
-            return View(model);
-        }
-
-        // POST: Enregistrement de la modification
         [HttpPost]
-        public async Task<IActionResult> EditItemPrice(EditPriceViewModel model)
+        public async Task<IActionResult> UpdateQuotationItemRate([FromBody] QuotationItemRateDto data)
         {
-            if (!ModelState.IsValid)
+            if (string.IsNullOrWhiteSpace(data.NameItem))
             {
-                return View(model);
+                return BadRequest("Le nom de l'article est requis");
             }
 
             try
             {
-                var result = await _supplierService.UpdateQuotationItemRate(
-                    model.QuotationName,
-                    model.ItemCode,
-                    model.NewPrice,
-                    model.Quantity);
-
+                var result = await _supplierService.UpdateQuotationItemRate(data.NameItem, data.NewRate, data.Quantity);
                 if (result)
                 {
-                    TempData["SuccessMessage"] = "Le prix a été mis à jour avec succès";
-                    return RedirectToAction("QuotationDetails", new { id = model.QuotationName });
+                    return Ok(new { success = true, message = "Prix mis à jour avec succès" });
                 }
-                
-                ModelState.AddModelError("", "Échec de la mise à jour du prix");
-                return View(model);
+                return StatusCode(500, new { success = false, message = "Échec de la mise à jour" });
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", $"Erreur: {ex.Message}");
-                return View(model);
+                _logger.LogError(ex, "Erreur lors de la mise à jour du prix");
+                return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+
+        public class QuotationItemRateDto
+        {
+            public string NameItem { get; set; }
+            public decimal NewRate { get; set; }
+            public decimal Quantity { get; set; }
+        }
+
+
+
+
     }
 }
