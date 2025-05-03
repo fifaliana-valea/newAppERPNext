@@ -7,24 +7,75 @@
 }
 
 <style>
+    /* Couleurs principales */
+    :root {
+        /* Nouvelle palette de couleurs plus profonde */
+        --primary-violet: #9a71f1; /* Violet riche et vibrant */
+        --light-violet: rgb(188, 160, 240); /* Violet secondaire moins clair */
+        --dark-violet: #a984f3ef; /* Violet foncé intense */
+        --darker-violet: #5a438b6c; /* Pour accents sombres */
+        
+        /* Gamme de gris révisée */
+        --light-gray: #f8f9fa; /* Gris très clair légèrement bleuté */
+        --medium-gray: #e9ecef; /* Gris moyen neutre */
+        --dark-gray: #6c757d; /* Gris foncé moderne */
+        --darker-gray: #495057; /* Pour textes */
+        
+        /* Couleurs de texte */
+        --text-dark: #212529; /* Noir doux pour texte */
+        --text-light: #f8f9fa; /* Texte clair */
+        
+        /* Accents */
+        --accent-color: #8a63d2; /* Violet accentuel */
+        --accent-light: #e2d9f3; /* Violet très clair pour fonds */
+    }
+
+    /* Exemple d'application sur un élément clé */
+    .btn-primary {
+        background-color: var(--primary-violet);
+        border-color: var(--dark-violet);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--dark-violet);
+        border-color: var(--darker-violet);
+    }
+
+    .card {
+        border: 1px solid var(--medium-gray);
+        background-color: white;
+    }
+
+    .card-header {
+        background-color: var(--primary-violet);
+        color: white;
+    }
+
+    /* Styles généraux */
+    body {
+        background-color: var(--light-gray);
+    }
+
     /* Styles spécifiques à la page Quotations */
     .quotation-container {
         animation: fadeIn 0.5s ease-out;
         background-color: #ffffff;
         border-radius: 10px;
-        box-shadow: 0 4px 20px rgba(108, 92, 231, 0.1);
+        box-shadow: 0 4px 20px rgba(126, 87, 194, 0.1);
         padding: 2rem;
         margin-bottom: 2rem;
+        border: 1px solid var(--medium-gray);
     }
 
     .quotation-header {
-        border-bottom: 1px solid #dfe6e9;
+        border-bottom: 1px solid var(--medium-gray);
         padding-bottom: 1.5rem;
         margin-bottom: 2rem;
     }
 
     .quotation-title {
-        color: #6c5ce7;
+        color: var(--dark-gray);
         font-weight: 600;
         margin-bottom: 0.5rem;
     }
@@ -32,24 +83,25 @@
     .quotation-info-card {
         background-color: white;
         border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(108, 92, 231, 0.08);
+        box-shadow: 0 2px 10px rgba(126, 87, 194, 0.08);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid var(--medium-gray);
     }
 
     .quotation-info-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(108, 92, 231, 0.15);
+        box-shadow: 0 5px 15px rgba(126, 87, 194, 0.15);
     }
 
     .info-label {
-        color: #636e72;
+        color: var(--dark-gray);
         font-size: 0.85rem;
         font-weight: 500;
         margin-bottom: 0.25rem;
     }
 
     .info-value {
-        color: #2d3436;
+        color: var(--text-dark);
         font-weight: 600;
         font-size: 1.1rem;
     }
@@ -65,7 +117,8 @@
     .items-table-container {
         border-radius: 8px;
         overflow: hidden;
-        box-shadow: 0 2px 15px rgba(108, 92, 231, 0.1);
+        box-shadow: 0 2px 15px rgba(126, 87, 194, 0.1);
+        border: 1px solid var(--medium-gray);
     }
 
     .items-table {
@@ -73,7 +126,7 @@
     }
 
     .items-table thead th {
-        background-color: #6c5ce7;
+        background-color: var(--primary-violet);
         color: white;
         border: none;
         padding: 1rem;
@@ -87,14 +140,19 @@
         transition: background-color 0.2s ease;
     }
 
+    .items-table tbody tr:nth-child(even) {
+        background-color: var(--light-gray);
+    }
+
     .items-table tbody tr:hover {
-        background-color: #f1f3ff;
+        background-color: var(--light-violet);
+        color: white;
     }
 
     .items-table tbody td {
         vertical-align: middle;
         padding: 1rem;
-        border-color: #dfe6e9;
+        border-color: var(--medium-gray);
     }
 
     .price-input-group {
@@ -104,38 +162,49 @@
     .price-input {
         border-right: none;
         font-weight: 500;
+        border-color: var(--medium-gray);
     }
 
     .price-input:focus {
-        border-color: #6c5ce7;
-        box-shadow: none;
+        border-color: var(--primary-violet);
+        box-shadow: 0 0 0 0.2rem rgba(126, 87, 194, 0.25);
     }
 
     .input-group-text {
         background-color: white;
         border-left: none;
-        color: #6c5ce7;
+        color: var(--primary-violet);
+        border-color: var(--medium-gray);
     }
 
     .update-btn {
         border-radius: 50px;
         padding: 0.35rem 0.75rem;
         transition: all 0.3s ease;
-        border: 1px solid #6c5ce7;
+        border: 1px solid var(--primary-violet);
+        color: var(--primary-violet);
+        background-color: transparent;
     }
 
     .update-btn:hover {
-        background-color: #6c5ce7;
+        background-color: var(--primary-violet);
         color: white;
     }
 
+    /* Pagination */
     .pagination .page-item.active .page-link {
-        background-color: #6c5ce7;
-        border-color: #6c5ce7;
+        background-color: var(--primary-violet);
+        border-color: var(--primary-violet);
     }
 
     .pagination .page-link {
-        color: #6c5ce7;
+        color: var(--primary-violet);
+        border-color: var(--medium-gray);
+    }
+
+    .pagination .page-link:hover {
+        color: var(--dark-violet);
+        background-color: var(--light-gray);
     }
 
     .sticky-header {
@@ -148,18 +217,46 @@
         border-radius: 50px;
         padding: 0.5rem 1.25rem;
         transition: all 0.3s ease;
-        border: 1px solid #dfe6e9;
+        border: 1px solid var(--medium-gray);
+        color: var(--dark-gray);
+        background-color: white;
     }
 
     .back-btn:hover {
-        background-color: #f1f3ff;
-        color: #6c5ce7;
-        border-color: #6c5ce7;
+        background-color: var(--light-violet);
+        color: white;
+        border-color: var(--light-violet);
     }
 
     .total-amount {
         font-size: 1.25rem;
-        color: #6c5ce7;
+        color: var(--primary-violet);
+        font-weight: 600;
+    }
+
+    /* Cartes et en-têtes */
+    .card-header.bg-primary {
+        background-color: var(--primary-violet) !important;
+        color: white;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-violet);
+        border-color: var(--primary-violet);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--dark-violet);
+        border-color: var(--dark-violet);
+    }
+
+    /* Badges status */
+    .badge-success {
+        background-color: var(--primary-violet);
+    }
+
+    .badge-warning {
+        background-color: var(--light-violet);
     }
 
     /* Responsive adjustments */
@@ -175,7 +272,7 @@
         .items-table tbody tr {
             display: block;
             margin-bottom: 1rem;
-            border: 1px solid #dfe6e9;
+            border: 1px solid var(--medium-gray);
             border-radius: 8px;
         }
         
@@ -190,7 +287,7 @@
         .items-table tbody td::before {
             content: attr(data-label);
             font-weight: 600;
-            color: #6c5ce7;
+            color: var(--primary-violet);
             margin-right: 1rem;
             font-size: 0.85rem;
         }
@@ -329,18 +426,21 @@
                                 <td>@item.Rate.ToString("N2")</td>
                                 <td>@((item.Rate * item.Quantity).ToString("N2"))</td>
                                 <td>
-                                    <a asp-action="EditItemPrice" 
-                                    asp-controller="Suppliers"
-                                    asp-route-supplierName="@Model.SupplierName"
-                                    asp-route-quotationName="@Model.Name"
-                                    asp-route-itemCode="@item.ItemCode"
-                                    asp-route-currentPrice="@item.Rate"
-                                    asp-route-quantity="@item.Quantity"
-                                    asp-route-itemName="@item.ItemName"
-                                    asp-route-unitOfMeasure="@item.UnitOfMeasure"
-                                    class="btn btn-sm btn-primary">
-                                        <i class="fas fa-edit"></i> Modifier
-                                    </a>
+                                    @if (Model.Status == "Draft")
+                                    {
+                                        <a asp-action="EditItemPrice" 
+                                        asp-controller="Suppliers"
+                                        asp-route-supplierName="@Model.SupplierName"
+                                        asp-route-quotationName="@Model.Name"
+                                        asp-route-itemCode="@item.ItemCode"
+                                        asp-route-currentPrice="@item.Rate"
+                                        asp-route-quantity="@item.Quantity"
+                                        asp-route-itemName="@item.ItemName"
+                                        asp-route-unitOfMeasure="@item.UnitOfMeasure"
+                                        class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i> Modifier
+                                        </a>
+                                    }
                                 </td>
                             </tr>
                         }

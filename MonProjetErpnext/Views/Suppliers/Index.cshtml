@@ -6,6 +6,97 @@
     int totalItems = ViewBag.TotalItems ?? 0;
     int totalPages = ViewBag.TotalPages ?? 1;
 }
+<style>
+    /* Style pour la pagination */
+.pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-color); /* #6c5ce7 */
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 5px rgba(108, 92, 231, 0.2);
+}
+
+.page-link {
+    color: var(--primary-color);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 0.75rem;
+    margin: 0 3px;
+    border-radius: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-link:hover {
+    background-color: var(--hover-color); /* #f1f3ff */
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.page-item.disabled .page-link {
+    color: #adb5bd;
+    pointer-events: none;
+    background-color: white;
+    border-color: var(--border-color);
+}
+
+/* Style pour le tableau */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(108, 92, 231, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+#dataTable {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+#dataTable th {
+    background-color: #f8f9fc;
+    color: var(--primary-color);
+    font-weight: 600;
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+#dataTable td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-top: 1px solid var(--border-color);
+}
+
+#dataTable tr:hover {
+    background-color: var(--hover-color);
+}
+
+#dataTable tr:nth-child(even) {
+    background-color: rgba(108, 92, 231, 0.03);
+}
+
+/* Animation fluide pour les lignes du tableau */
+#dataTable tr {
+    transition: background-color 0.3s ease;
+}
+
+/* Style pour les boutons dans le tableau si nécessaire */
+#dataTable .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+</style>
 
 <div class="container mt-4">
     <h2>@ViewData["Title"]</h2>
