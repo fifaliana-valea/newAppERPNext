@@ -107,6 +107,36 @@ namespace MonProjetErpnext.Services.PurchasInvoice
             }
         }
 
+        public async Task<byte[]> DownloadPurchaseInvoicePdf(string invoiceName)
+        {
+            var url = "/api/method/frappe.utils.print_format.download_pdf";
+
+            var payload = new Dictionary<string, object>
+            {
+                { "doctype", "Purchase Invoice" },
+                { "name", invoiceName },
+                { "format", "Standard" },
+                { "no_letterhead", 0 }
+            };
+
+            var jsonContent = new StringContent(
+                JsonSerializer.Serialize(payload),
+                Encoding.UTF8,
+                "application/json"
+            );
+
+            var response = await _loginService.MakeAuthenticatedRequest(HttpMethod.Post, url, jsonContent);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMsg = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Erreur lors de la récupération du PDF : {response.StatusCode} - {errorMsg}");
+            }
+
+            return await response.Content.ReadAsByteArrayAsync();
+        }
+
+
         public Task<List<PurchaseInvoice>> GetPurchasInvoiceWithItems()
         {
             return GetPurchaseInvoiceWithItems(null);

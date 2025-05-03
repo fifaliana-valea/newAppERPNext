@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using MonProjetErpnext.Models.PurchaseInvoice;
 
 namespace MonProjetErpnext.Controllers.PurchaseInvoice
 {
@@ -56,5 +57,39 @@ namespace MonProjetErpnext.Controllers.PurchaseInvoice
                 });
             }
         }
+
+        public async Task<IActionResult> DownloadInvoicePdf([FromBody]  MonProjetErpnext.Models.PurchaseInvoice.PurchaseInvoice invoice)
+        {
+
+            if (invoice.Name == null)
+                return NotFound("name non trouvée");
+
+            var pdfBytes = new PdfGenerator().GeneratePurchaseInvoicePdf(invoice);
+            return File(pdfBytes, "application/pdf", $"Facture_{invoice.Name}.pdf");
+        }
+
+        public async Task<IActionResult> DownloadPurchaseInvoicePdf([FromBody] string invoiceName)
+        {
+            if (string.IsNullOrEmpty(invoiceName))
+            {
+                return BadRequest("Le nom de la facture est requis.");
+            }
+
+            try
+            {
+                // Appel à la fonction de service pour récupérer le PDF
+                var pdfBytes = await _purchaseInvoiceService.DownloadPurchaseInvoicePdf(invoiceName);
+
+                // Retourne le fichier PDF au client
+                return File(pdfBytes, "application/pdf", $"Facture_{invoiceName}.pdf");
+            }
+            catch (Exception ex)
+            {
+                // Gestion des erreurs
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+
     }
 }

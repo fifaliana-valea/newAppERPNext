@@ -162,6 +162,12 @@
     border-color: #5e4bc0;
 }
 
+.download-btn {
+    display: inline-block; /* Assurez-vous qu'il s'affiche */
+    visibility: visible; /* Vérifiez qu'il est visible */
+}
+
+
 .btn-outline-secondary {
     color: var(--primary-color);
     border-color: var(--border-color);
@@ -231,15 +237,23 @@
                         <h5 class="m-0">Facture: @invoice.Name</h5>
                         <small class="text-muted">Fournisseur: @invoice.SupplierName</small>
                     </div>
-                    <div>
+                    <div class="d-flex align-items-center">
                         <span class="status-badge @(invoice.Status == "Paid" ? "badge-paid" : 
                                                     invoice.Status == "Unpaid" ? "badge-unpaid" : 
                                                     invoice.Status == "Overdue" ? "badge-overdue" : 
                                                     "badge-draft")">
                             @invoice.Status
                         </span>
+                        <!-- Bouton de téléchargement dynamique à côté du statut -->
+                        <button class="btn btn-link download-btn ml-3" 
+                                data-invoice-name="@invoice.Name" 
+                                title="Télécharger PDF">
+                            <i class="fas fa-download"></i> <!-- Icône de téléchargement -->
+                        </button>
                     </div>
                 </div>
+
+
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3">
@@ -279,9 +293,11 @@
                                 <span class="info-label">Société:</span>
                                 <p class="info-value">@invoice.Company</p>
                             </div>
-                            <div class="mb-3">
-                                <span class="info-label">Payé:</span>
-                                <p class="info-value">@(invoice.IsPaid ? "Oui" : "Non")</p>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <span class="info-label">Payé:</span>
+                                    <p class="info-value">@(invoice.IsPaid ? "Oui" : "Non")</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -353,3 +369,44 @@
         </div>
     }
 </div>
+@section Scripts{
+<script>
+    // Ajouter un écouteur d'événements pour chaque bouton de téléchargement
+    document.querySelectorAll('.download-btn').forEach(function(button) {
+        button.addEventListener('click', async function () {
+            // Récupérer le nom de la facture spécifique à partir de l'attribut `data-invoice-name`
+            var invoiceName = button.getAttribute('data-invoice-name'); 
+
+            if (!invoiceName) {
+                alert("Le nom de la facture est manquant.");
+                return;
+            }
+
+            try {
+                // Appel API pour récupérer le PDF de la facture
+                const response = await fetch('/PurchaseInvoice/DownloadPurchaseInvoicePdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(invoiceName),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erreur lors du téléchargement du PDF.');
+                }
+
+                // Convertir la réponse en blob
+                const blob = await response.blob();
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `Facture_${invoiceName}.pdf`; // Nom du fichier PDF
+                link.click(); // Déclenche le téléchargement
+            } catch (error) {
+                console.error('Erreur lors de l\'appel API:', error);
+                alert('Erreur lors du téléchargement du PDF');
+            }
+        });
+    });
+</script>
+}
