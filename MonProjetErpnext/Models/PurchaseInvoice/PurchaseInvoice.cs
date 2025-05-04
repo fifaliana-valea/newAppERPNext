@@ -33,6 +33,9 @@ namespace MonProjetErpnext.Models.PurchaseInvoice
         public string Currency { get; set; }
         
         public string Company { get; set; }
+
+        public bool CanValidate => Status == "Draft";
+        public bool CanPay => Status == "Unpaid" || Status == "Overdue";
         
         public List<PurchaseInvoiceItem> Items { get; set; } = new List<PurchaseInvoiceItem>();
     }

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using MonProjetErpnext.Models.PurchaseInvoice;
+using System.ComponentModel.DataAnnotations;
 
 namespace MonProjetErpnext.Controllers.PurchaseInvoice
 {
@@ -16,7 +17,7 @@ namespace MonProjetErpnext.Controllers.PurchaseInvoice
     {
         private readonly ILogger<PurchaseInvoiceController> _logger;
         private readonly IPurchasInvoiceService _purchaseInvoiceService;
-        private const int PageSize = 2; // 2 factures par page
+        private const int PageSize = 3; // Nombre de factures par page
 
         public PurchaseInvoiceController(
             IPurchasInvoiceService purchaseInvoiceService,
@@ -58,38 +59,181 @@ namespace MonProjetErpnext.Controllers.PurchaseInvoice
             }
         }
 
-        public async Task<IActionResult> DownloadInvoicePdf([FromBody]  MonProjetErpnext.Models.PurchaseInvoice.PurchaseInvoice invoice)
+        [HttpGet]
+        public IActionResult PayInvoice(string invoiceName, decimal amountDue)
         {
+            try
+            {
+                if (string.IsNullOrEmpty(invoiceName))
+                {
+                    TempData["ErrorMessage"] = "Identifiant de facture manquant";
+                    return RedirectToAction("Index");
+                }
 
-            if (invoice.Name == null)
-                return NotFound("name non trouvée");
+                // Générer la référence automatique pour espèces
+                var cashRef = $"ESP-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}";
+                ViewBag.AutoReference = cashRef;
 
-            var pdfBytes = new PdfGenerator().GeneratePurchaseInvoicePdf(invoice);
-            return File(pdfBytes, "application/pdf", $"Facture_{invoice.Name}.pdf");
+                var model = new PayInvoiceRequest
+                {
+                    InvoiceName = invoiceName,
+                    Amount = amountDue,
+                    PaymentDate = DateTime.Now,
+                    ReferenceNumber = cashRef // Pré-remplissage initial
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading payment form for invoice {InvoiceName}", invoiceName);
+                TempData["ErrorMessage"] = "Erreur lors du chargement du formulaire";
+                return RedirectToAction("Index");
+            }
         }
 
-        public async Task<IActionResult> DownloadPurchaseInvoicePdf([FromBody] string invoiceName)
+        [HttpPost]
+        public async Task<IActionResult> ProcessPayment(PayInvoiceRequest request)
+        {
+            try
+            {
+                // Validation spécifique pour les espèces
+                if (request.PaymentMethod == "Espèces")
+                {
+                    if (!request.ReferenceNumber.StartsWith("ESP-"))
+                    {
+                        ModelState.AddModelError("ReferenceNumber", 
+                            "Les paiements en espèces doivent avoir une référence valide");
+                    }
+                    
+                    // Vous pouvez ajouter ici une logique pour vérifier l'unicité de la référence
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    // Regénérer la référence si nécessaire
+                    if (request.PaymentMethod == "Espèces")
+                    {
+                        ViewBag.AutoReference = request.ReferenceNumber;
+                    }
+                    return View("PayInvoice", request);
+                }
+
+                var paymentInfo = new PaymentInfo
+                {
+                    Amount = request.Amount,
+                    PaymentMethod = request.PaymentMethod,
+                    ReferenceNumber = request.ReferenceNumber,
+                    PaymentDate = request.PaymentDate
+                };
+
+                _logger.LogInformation("Payment Info => Amount: {Amount}, Method: {PaymentMethod}, Reference: {ReferenceNumber}, Date: {PaymentDate}", 
+                    paymentInfo.Amount, 
+                    paymentInfo.PaymentMethod, 
+                    paymentInfo.ReferenceNumber, 
+                    paymentInfo.PaymentDate);
+
+
+                var result = await _purchaseInvoiceService.PayPurchaseInvoice(request.InvoiceName, paymentInfo);
+
+                if (result)
+                {
+                    TempData["SuccessMessage"] = $"Paiement de {request.Amount}€ ({request.PaymentMethod}) enregistré";
+                    return RedirectToAction("Index");
+                }
+
+                ModelState.AddModelError("", "Échec du traitement du paiement");
+                return View("PayInvoice", request);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing payment for invoice {InvoiceName}", request.InvoiceName);
+                TempData["ErrorMessage"] = "Erreur critique lors du paiement";
+                return View("PayInvoice", request);
+            }
+        }
+        
+        
+        
+        [HttpPost]
+        public async Task<IActionResult> ValidateInvoice(string invoiceName)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(invoiceName))
+                {
+                    TempData["ErrorMessage"] = "Identifiant de facture manquant";
+                    return RedirectToAction("Index");
+                }
+
+                var result = await _purchaseInvoiceService.ValidatePurchaseInvoice(invoiceName);
+                
+                if (result)
+                {
+                    TempData["SuccessMessage"] = $"Facture {invoiceName} validée avec succès";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = $"Échec de la validation de la facture {invoiceName}";
+                }
+                
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error validating invoice {InvoiceName}", invoiceName);
+                TempData["ErrorMessage"] = "Erreur lors de la validation";
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DownloadPurchaseInvoicePdf(string invoiceName)
         {
             if (string.IsNullOrEmpty(invoiceName))
             {
-                return BadRequest("Le nom de la facture est requis.");
+                TempData["ErrorMessage"] = "Nom de facture invalide";
+                return RedirectToAction("Index");
             }
 
             try
             {
-                // Appel à la fonction de service pour récupérer le PDF
                 var pdfBytes = await _purchaseInvoiceService.DownloadPurchaseInvoicePdf(invoiceName);
-
-                // Retourne le fichier PDF au client
                 return File(pdfBytes, "application/pdf", $"Facture_{invoiceName}.pdf");
             }
             catch (Exception ex)
             {
-                // Gestion des erreurs
-                return StatusCode(500, new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Error downloading PDF for invoice {InvoiceName}", invoiceName);
+                TempData["ErrorMessage"] = "Erreur lors du téléchargement";
+                return RedirectToAction("Index");
             }
         }
 
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { 
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier 
+            });
+        }
+    }
 
+    public class PayInvoiceRequest
+    {
+        public string InvoiceName { get; set; }
+        
+        [Required(ErrorMessage = "Le montant est obligatoire")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Le montant doit être positif")]
+        public decimal Amount { get; set; }
+        
+        [Required(ErrorMessage = "La méthode de paiement est obligatoire")]
+        public string PaymentMethod { get; set; }
+        
+        [Required(ErrorMessage = "La référence est obligatoire")]
+        public string ReferenceNumber { get; set; }
+        
+        [Required(ErrorMessage = "La date est obligatoire")]
+        [DataType(DataType.Date)]
+        public DateTime PaymentDate { get; set; }
     }
 }
