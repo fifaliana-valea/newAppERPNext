@@ -179,6 +179,26 @@
     border-color: var(--border-color);
 }
 
+.invoice-card-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #eee;
+    padding: 15px;
+}
+
+.validate-btn, .pay-btn {
+    min-width: 120px;
+}
+
+.validate-btn:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+.pay-btn:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
 /* Animation */
 @@keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -337,6 +357,28 @@
                         </div>
                     </div>
                 </div>
+                <div class="card-footer invoice-card-footer d-flex justify-content-end">
+                    @if (invoice.CanValidate)
+                    {
+                        <button class="btn btn-primary validate-btn" 
+                                data-invoice-name="@invoice.Name"
+                                title="Valider la facture">
+                            <i class="fas fa-check-circle"></i> Valider
+                        </button>
+
+                    }
+                    
+                    @if (invoice.CanPay)
+                    {
+                        <a asp-action="PayInvoice" 
+                        asp-controller="PurchaseInvoice" 
+                        asp-route-invoiceName="@invoice.Name"
+                        asp-route-amountDue="@invoice.OutstandingAmount"
+                        class="btn btn-success">
+                            Payer
+                        </a>
+                    }
+                </div>
             </div>
         }
 
@@ -408,5 +450,42 @@
             }
         });
     });
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".validate-btn").forEach(button => {
+            button.addEventListener("click", async function () {
+                const invoiceName = this.dataset.invoiceName;
+
+                if (!invoiceName) {
+                    alert("Nom de facture manquant");
+                    return;
+                }
+
+                const confirmation = confirm(`Voulez-vous vraiment valider la facture : ${invoiceName} ?`);
+                if (!confirmation) return;
+
+                try {
+                    const response = await fetch('/PurchaseInvoice/ValidateInvoice', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                        },
+                        body: `invoiceName=${encodeURIComponent(invoiceName)}`
+                    });
+
+                    if (response.redirected) {
+                        window.location.href = response.url; // Rediriger après validation
+                    } else {
+                        const html = await response.text();
+                        document.body.innerHTML = html;
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de la validation :", error);
+                    alert("Erreur lors de la validation de la facture.");
+                }
+            });
+        });
+    });
+
 </script>
 }

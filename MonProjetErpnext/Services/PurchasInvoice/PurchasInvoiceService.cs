@@ -136,11 +136,254 @@ namespace MonProjetErpnext.Services.PurchasInvoice
             return await response.Content.ReadAsByteArrayAsync();
         }
 
-
         public Task<List<PurchaseInvoice>> GetPurchasInvoiceWithItems()
         {
             return GetPurchaseInvoiceWithItems(null);
         }
+
+        public async Task<bool> ValidatePurchaseInvoice(string invoiceName)
+        {
+            try
+            {
+                var endpoint = $"/api/resource/Purchase Invoice/{invoiceName}";
+                
+                var payload = new
+                {
+                    docstatus = 1
+                };
+
+                var content = new StringContent(
+                    JsonSerializer.Serialize(payload),
+                    Encoding.UTF8,
+                    "application/json");
+
+                var response = await _loginService.MakeAuthenticatedRequest(
+                    HttpMethod.Put, 
+                    endpoint, 
+                    content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Failed to validate invoice {InvoiceName}. Status: {StatusCode}, Error: {Error}", 
+                        invoiceName, response.StatusCode, errorContent);
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error validating purchase invoice {InvoiceName}", invoiceName);
+                return false;
+            }
+        }
+
+        public async Task<bool> PayPurchaseInvoice(string invoiceName, PaymentInfo paymentInfo)
+        {
+            try
+            {
+                // 1. Get invoice details
+                var invoiceEndpoint = $"/api/resource/Purchase%20Invoice/{invoiceName}";
+                var invoiceResponse = await _loginService.MakeAuthenticatedRequest(HttpMethod.Get, invoiceEndpoint);
+
+                if (!invoiceResponse.IsSuccessStatusCode)
+                {
+                    _logger.LogError("Failed to get invoice details for {InvoiceName}. Status: {StatusCode}", 
+                        invoiceName, invoiceResponse.StatusCode);
+                    return false;
+                }
+
+                var invoiceContent = await invoiceResponse.Content.ReadAsStringAsync();
+                _logger.LogDebug("Invoice response: {Response}", invoiceContent);
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    Converters = { new DecimalConverter() }
+                };
+
+                // Parse invoice data manually for better error handling
+                var invoiceJson = JsonDocument.Parse(invoiceContent);
+                var invoiceData = invoiceJson.RootElement.GetProperty("data");
+
+                // Get required fields with validation
+                var supplier = invoiceData.GetProperty("supplier").GetString();
+                var company = invoiceData.GetProperty("company").GetString();
+                var grandTotal = invoiceData.GetProperty("grand_total").GetDecimal();
+                var outstandingAmount = invoiceData.GetProperty("outstanding_amount").GetDecimal();
+                var currency = invoiceData.GetProperty("currency").GetString();
+
+                if (string.IsNullOrEmpty(supplier) || string.IsNullOrEmpty(company))
+                {
+                    _logger.LogError("Missing required invoice data for {InvoiceName}", invoiceName);
+                    return false;
+                }
+
+                // 2. Get default accounts and payment methods
+                var defaultAccounts = await GetDefaultAccounts(company);
+                if (defaultAccounts == null)
+                {
+                    _logger.LogError("Failed to get default accounts for company {Company}", company);
+                    return false;
+                }
+
+                // 3. Create payment entry with validated accounts
+                var paymentEndpoint = "/api/resource/Payment%20Entry";
+                
+                var paymentPayload = new
+                {
+                    doctype = "Payment Entry",
+                    docstatus = 1,
+                    payment_type = "Pay",
+                    party_type = "Supplier",
+                    party = supplier,
+                    company = company,
+                    paid_amount = outstandingAmount,
+                    received_amount = outstandingAmount,
+                    source_exchange_rate = 1.0m,
+                    paid_from = defaultAccounts.PaidFromAccount,
+                    paid_from_account_currency = currency,
+                    paid_to = defaultAccounts.PaidToAccount,
+                    paid_to_account_currency = currency,
+                    mode_of_payment = paymentInfo.PaymentMethod,
+                    reference_no = paymentInfo.ReferenceNumber,
+                    reference_date = paymentInfo.PaymentDate.ToString("yyyy-MM-dd"),
+                    references = new[]
+                    {
+                        new
+                        {
+                            reference_doctype = "Purchase Invoice",
+                            reference_name = invoiceName,
+                            total_amount = grandTotal,
+                            outstanding_amount = outstandingAmount,
+                            allocated_amount = outstandingAmount
+                        }
+                    }
+                };
+
+                var paymentContent = new StringContent(
+                    JsonSerializer.Serialize(paymentPayload, options),
+                    Encoding.UTF8,
+                    "application/json");
+
+                var paymentResponse = await _loginService.MakeAuthenticatedRequest(
+                    HttpMethod.Post, 
+                    paymentEndpoint, 
+                    paymentContent);
+
+                if (!paymentResponse.IsSuccessStatusCode)
+                {
+                    var errorContent = await paymentResponse.Content.ReadAsStringAsync();
+                    _logger.LogError("Failed to create payment for invoice {InvoiceName}. Status: {StatusCode}, Error: {Error}", 
+                        invoiceName, paymentResponse.StatusCode, errorContent);
+                    return false;
+                }
+
+                // 3. Submit payment
+                var paymentResponseContent = await paymentResponse.Content.ReadAsStringAsync();
+                var paymentData = JsonSerializer.Deserialize<PaymentCreationResponse>(paymentResponseContent, options);
+
+                if (paymentData?.Data == null || string.IsNullOrEmpty(paymentData.Data.name))
+                {
+                    _logger.LogError("Payment data is null or invalid for invoice {InvoiceName}", invoiceName);
+                    return false;
+                }
+
+                var paymentName = paymentData.Data.name;
+
+                var submitEndpoint = "/api/method/frappe.model.workflow.apply_workflow";
+                
+                var submitPayload = new
+                {
+                    doctype = "Payment Entry",
+                    name = paymentName,
+                    action = "Submit"
+                };
+
+                var submitContent = new StringContent(
+                    JsonSerializer.Serialize(submitPayload, options),
+                    Encoding.UTF8,
+                    "application/json");
+
+                var submitResponse = await _loginService.MakeAuthenticatedRequest(
+                    HttpMethod.Post, 
+                    submitEndpoint, 
+                    submitContent);
+
+                _logger.LogInformation("Status {ok}", submitResponse.ToString());
+
+                return true;
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogError(ex, "Missing expected field in invoice data for {InvoiceName}", invoiceName);
+                return false;
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError(ex, "JSON parsing error for invoice {InvoiceName}", invoiceName);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error paying purchase invoice {InvoiceName}", invoiceName);
+                return false;
+            }
+        }
+
+        private async Task<DefaultAccounts> GetDefaultAccounts(string company)
+        {
+            try
+            {
+                // Get default cash account
+                var cashAccountResponse = await _loginService.MakeAuthenticatedRequest(
+                    HttpMethod.Get,
+                    $"/api/resource/Company/{company}?fields=[\"default_cash_account\"]");
+
+                if (!cashAccountResponse.IsSuccessStatusCode)
+                    return null;
+
+                var cashAccountContent = await cashAccountResponse.Content.ReadAsStringAsync();
+                var cashAccountJson = JsonDocument.Parse(cashAccountContent);
+                var defaultCashAccount = cashAccountJson.RootElement
+                    .GetProperty("data")
+                    .GetProperty("default_cash_account")
+                    .GetString();
+
+                // Get default payable account
+                var payableAccountResponse = await _loginService.MakeAuthenticatedRequest(
+                    HttpMethod.Get,
+                    $"/api/resource/Company/{company}?fields=[\"default_payable_account\"]");
+
+                if (!payableAccountResponse.IsSuccessStatusCode)
+                    return null;
+
+                var payableAccountContent = await payableAccountResponse.Content.ReadAsStringAsync();
+                var payableAccountJson = JsonDocument.Parse(payableAccountContent);
+                var defaultPayableAccount = payableAccountJson.RootElement
+                    .GetProperty("data")
+                    .GetProperty("default_payable_account")
+                    .GetString();
+
+                return new DefaultAccounts
+                {
+                    PaidFromAccount = defaultCashAccount,
+                    PaidToAccount = defaultPayableAccount
+                };
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private class DefaultAccounts
+        {
+            public string PaidFromAccount { get; set; }
+            public string PaidToAccount { get; set; }
+        }
+
 
         private class IntermediateInvoice
         {
@@ -171,6 +414,16 @@ namespace MonProjetErpnext.Services.PurchasInvoice
         private class ErpListResponse<T>
         {
             public List<T> Data { get; set; }
+        }
+
+        private class PaymentCreationResponse
+        {
+            public PaymentData Data { get; set; }
+        }
+
+        private class PaymentData
+        {
+            public string name { get; set; }
         }
 
         public class BoolToIntConverter : JsonConverter<bool?>
@@ -217,11 +470,17 @@ namespace MonProjetErpnext.Services.PurchasInvoice
         {
             public override decimal Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                if (reader.TokenType == JsonTokenType.String && decimal.TryParse(reader.GetString(), out decimal value))
+                if (reader.TokenType == JsonTokenType.String)
                 {
-                    return value;
+                    if (decimal.TryParse(reader.GetString(), out var result))
+                        return result;
                 }
-                return reader.GetDecimal();
+                else if (reader.TokenType == JsonTokenType.Number)
+                {
+                    return reader.GetDecimal();
+                }
+                
+                return 0m;
             }
 
             public override void Write(Utf8JsonWriter writer, decimal value, JsonSerializerOptions options)

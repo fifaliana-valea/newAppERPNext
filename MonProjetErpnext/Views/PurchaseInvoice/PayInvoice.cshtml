@@ -1,0 +1,149 @@
+@model MonProjetErpnext.Controllers.PurchaseInvoice.PayInvoiceRequest
+
+@{
+    ViewData["Title"] = "Paiement de facture";
+    Layout = "_Layout";
+}
+
+<style>
+    #paymentForm .form-control:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    }
+    .card {
+        border: none;
+        border-radius: 0.35rem;
+    }
+    .card-header {
+        border-radius: 0.35rem 0.35rem 0 0 !important;
+    }
+    .btn-success {
+        background-color: #1cc88a;
+        border-color: #1cc88a;
+    }
+    .btn-success:hover {
+        background-color: #17a673;
+        border-color: #169b6b;
+    }
+    #referenceGroup {
+        transition: all 0.3s ease;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-money-bill-wave mr-2"></i>Paiement de la facture @Model.InvoiceName
+                    </h3>
+                </div>
+                
+                <div class="card-body">
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            @TempData["ErrorMessage"]
+                        </div>
+                    }
+
+                    <form asp-action="ProcessPayment" method="post" id="paymentForm">
+                        <input type="hidden" asp-for="InvoiceName" />
+                        <input type="hidden" id="autoReference" value="@ViewBag.AutoReference" />
+                        
+                        <div class="form-group row">
+                            <label asp-for="Amount" class="col-sm-4 col-form-label">Montant à payer</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                    <input asp-for="Amount" class="form-control" id="amountInput" type="number" />
+                                </div>
+                                <span asp-validation-for="Amount" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label asp-for="PaymentMethod" class="col-sm-4 col-form-label">Mode de paiement</label>
+                            <div class="col-sm-8">
+                                <select asp-for="PaymentMethod" class="form-control" id="paymentMethodSelect">
+                                    <option value="">-- Select --</option>
+                                    <option value="Credit Card">Carte bancaire</option>
+                                    <option value="Bank Transfer">Virement</option>
+                                    <option value="Check">Chèque</option>
+                                    <option value="Cash">Espèces</option>
+                                    <option value="Direct Debit">Prélèvement</option>
+                                </select>
+                                <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row" id="referenceGroup">
+                            <label asp-for="ReferenceNumber" class="col-sm-4 col-form-label">Référence paiement</label>
+                            <div class="col-sm-8">
+                                <input asp-for="ReferenceNumber" class="form-control" id="referenceInput" />
+                                <small class="form-text text-muted" id="referenceHelp">
+                                    Numéro de chèque, référence virement, etc.
+                                </small>
+                                <span asp-validation-for="ReferenceNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label asp-for="PaymentDate" class="col-sm-4 col-form-label">Date de paiement</label>
+                            <div class="col-sm-8">
+                                <input asp-for="PaymentDate" type="date" class="form-control" id="paymentDate" />
+                                <span asp-validation-for="PaymentDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-8 offset-sm-4">
+                                <button type="submit" class="btn btn-success mr-2">
+                                    <i class="fas fa-check-circle mr-1"></i>Confirmer le paiement
+                                </button>
+                                <a asp-action="Index" class="btn btn-secondary">
+                                    <i class="fas fa-times-circle mr-1"></i>Annuler
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        $(document).ready(function() {
+            // Formatage du montant
+            $('#amountInput').on('blur', function() {
+                let value = parseFloat($(this).val()).toFixed(2);
+                $(this).val(value);
+            });
+
+            // Date par défaut = aujourd'hui
+            let today = new Date().toISOString().split('T')[0];
+            $('#paymentDate').val(today);
+
+            // Gestion du mode de paiement
+            $('#paymentMethodSelect').change(function() {
+                const method = $(this).val();
+                const autoRef = $('#autoReference').val();
+                
+                if (method === "Cash") {
+                    $('#referenceInput').val(autoRef).prop('readonly', true);
+                    $('#referenceHelp').text("Référence automatique pour paiement en espèces");
+                } else {
+                    $('#referenceInput').val('').prop('readonly', false);
+                    $('#referenceHelp').text("Numéro de chèque, référence virement, etc.");
+                }
+            }).trigger('change');
+        });
+    </script>
+}

@@ -9,5 +9,7 @@ namespace MonProjetErpnext.Services.PurchasInvoice
     {
         Task<List<PurchaseInvoice>> GetPurchaseInvoiceWithItems(string status = null);
          Task<byte[]> DownloadPurchaseInvoicePdf(string invoiceName);
+         Task<bool> ValidatePurchaseInvoice(string invoiceName);
+        Task<bool> PayPurchaseInvoice(string invoiceName, PaymentInfo paymentInfo);
     }
 }
