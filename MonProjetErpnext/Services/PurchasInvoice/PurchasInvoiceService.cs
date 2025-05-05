@@ -111,12 +111,11 @@ namespace MonProjetErpnext.Services.PurchasInvoice
         {
             var url = "/api/method/frappe.utils.print_format.download_pdf";
 
-            var payload = new Dictionary<string, object>
-            {
-                { "doctype", "Purchase Invoice" },
-                { "name", invoiceName },
-                { "format", "Standard" },
-                { "no_letterhead", 0 }
+            var payload = new {
+                doctype = "Purchase Invoice",
+                name = invoiceName,
+                format = "Standard",
+                no_letterhead = 0
             };
 
             var jsonContent = new StringContent(
@@ -130,7 +129,7 @@ namespace MonProjetErpnext.Services.PurchasInvoice
             if (!response.IsSuccessStatusCode)
             {
                 var errorMsg = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Erreur lors de la récupération du PDF : {response.StatusCode} - {errorMsg}");
+                throw new Exception($"Erreur API ERPNext: {response.StatusCode} - {errorMsg}");
             }
 
             return await response.Content.ReadAsByteArrayAsync();
