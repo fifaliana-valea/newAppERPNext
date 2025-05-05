@@ -1,0 +1,84 @@
+@model MonProjetErpnext.Models.Import.ImportViewModel
+
+@{
+    ViewData["Title"] = "Importer des documents";
+}
+
+<div class="container mt-5">
+    <h2>@ViewData["Title"]</h2>
+
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+    }
+
+    <form asp-action="Upload" method="post" enctype="multipart/form-data" class="mt-4">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="DocumentType" class="control-label"></label>
+            <select asp-for="DocumentType" asp-items="@(new SelectList(Model.AvailableTypes))" 
+                    class="form-control">
+                <option value="">-- Sélectionnez --</option>
+            </select>
+            <span asp-validation-for="DocumentType" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Supplier" class="control-label"></label>
+            <input asp-for="Supplier" class="form-control" />
+            <span asp-validation-for="Supplier" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Company" class="control-label"></label>
+            <input asp-for="Company" class="form-control" />
+            <span asp-validation-for="Company" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Currency" class="control-label"></label>
+            <input asp-for="Currency" class="form-control" />
+            <span asp-validation-for="Currency" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="File" class="control-label"></label>
+            <div class="custom-file">
+                <input asp-for="File" class="custom-file-input" accept=".csv">
+                <label class="custom-file-label" for="File">Choisir un fichier CSV...</label>
+            </div>
+            <span asp-validation-for="File" class="text-danger"></span>
+            <small class="form-text text-muted">
+                <a href="@Url.Action("DownloadTemplate", new { type = Model.DocumentType })" 
+                   onclick="return checkDocumentType()">
+                    Télécharger le template
+                </a>
+            </small>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-upload"></i> Importer
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Affiche le nom du fichier sélectionné
+        $(".custom-file-input").on("change", function() {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+
+        function checkDocumentType() {
+            if (!$("#DocumentType").val()) {
+                alert("Veuillez d'abord sélectionner un type de document");
+                return false;
+            }
+            return true;
+        }
+    </script>
+}

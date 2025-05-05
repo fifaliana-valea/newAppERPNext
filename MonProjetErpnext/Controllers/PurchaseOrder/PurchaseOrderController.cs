@@ -18,11 +18,11 @@ namespace MonProjetErpnext.Controllers.PurchaseOrder
         public PurchaseOrderController(
             IPurchaseOrderService purchaseOrderService,
             ILogger<PurchaseOrderController> logger,
-            ISupplierService SupplierService)
+            ISupplierService supplierService)
         {
             _purchaseOrderService = purchaseOrderService;
             _logger = logger;
-            _supplierService = SupplierService;
+            _supplierService = supplierService;
         }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = DefaultPageSize)

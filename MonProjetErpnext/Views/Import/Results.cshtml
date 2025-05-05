@@ -1,0 +1,52 @@
+@model MonProjetErpnext.Models.Import.ImportResultViewModel
+
+@{
+    ViewData["Title"] = "Résultats de l'import";
+}
+
+<div class="container mt-5">
+    <h2>@ViewData["Title"]</h2>
+
+    @if (ViewBag.SuccessMessage != null)
+    {
+        <div class="alert alert-success">@ViewBag.SuccessMessage</div>
+    }
+
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+    }
+
+    <div class="card mt-4">
+        <div class="card-header">
+            Statistiques
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Documents traités</dt>
+                <dd class="col-sm-9">@Model.RecordsProcessed</dd>
+
+                <dt class="col-sm-3">Documents créés</dt>
+                <dd class="col-sm-9">@Model.RecordsCreated</dd>
+
+                <dt class="col-sm-3">Statut</dt>
+                <dd class="col-sm-9">
+                    @if (Model.IsSuccess)
+                    {
+                        <span class="badge badge-success">Succès</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-danger">Échec partiel</span>
+                    }
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+    </div>
+</div>

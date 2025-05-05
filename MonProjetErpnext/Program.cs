@@ -5,6 +5,7 @@ using MonProjetErpnext.Services;
 using MonProjetErpnext.Services.Suppliers;
 using MonProjetErpnext.Services.PurchasInvoice;
 using MonProjetErpnext.Services.PurchaseOrder;
+using MonProjetErpnext.Services.Import;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,7 @@ builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IPurchasInvoiceService, PurchasInvoiceService>();
 builder.Services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
+builder.Services.AddScoped<IImportService, ImportService>();
 
 
 // Configuration de l'authentification
