@@ -131,19 +131,18 @@
             let today = new Date().toISOString().split('T')[0];
             $('#paymentDate').val(today);
 
-            // Gestion du mode de paiement
+            // Définir la référence automatique pour tous les modes de paiement
+            $('#referenceInput').val($('#autoReference').val()).prop('readonly', true);
+            $('#referenceHelp').text("Référence de paiement automatique");
+
+            // Optionnel: Permettre la modification si nécessaire
             $('#paymentMethodSelect').change(function() {
                 const method = $(this).val();
-                const autoRef = $('#autoReference').val();
-                
-                if (method === "Cash") {
-                    $('#referenceInput').val(autoRef).prop('readonly', true);
-                    $('#referenceHelp').text("Référence automatique pour paiement en espèces");
-                } else {
+                if (method === "Custom") {  // Ajoutez un option "Custom" si vous voulez permettre la saisie manuelle
                     $('#referenceInput').val('').prop('readonly', false);
-                    $('#referenceHelp').text("Numéro de chèque, référence virement, etc.");
+                    $('#referenceHelp').text("Saisissez votre référence manuellement");
                 }
-            }).trigger('change');
+            });
         });
     </script>
 }
