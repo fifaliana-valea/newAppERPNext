@@ -71,15 +71,19 @@ namespace MonProjetErpnext.Controllers.PurchaseInvoice
                 }
 
                 // Générer la référence automatique pour espèces
-                var cashRef = $"ESP-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}";
-                ViewBag.AutoReference = cashRef;
+                // var cashRef = $"ESP-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}";
+                // ViewBag.AutoReference = cashRef;
+
+                        // Générer la référence automatique basée sur le type de paiement
+                var paymentRef = GeneratePaymentReference();
+                ViewBag.AutoReference = paymentRef;
 
                 var model = new PayInvoiceRequest
                 {
                     InvoiceName = invoiceName,
                     Amount = amountDue,
                     PaymentDate = DateTime.Now,
-                    ReferenceNumber = cashRef // Pré-remplissage initial
+                    ReferenceNumber = paymentRef // Pré-remplissage initial
                 };
 
                 return View(model);
@@ -216,7 +220,22 @@ namespace MonProjetErpnext.Controllers.PurchaseInvoice
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier 
             });
         }
+        private string GeneratePaymentReference(string paymentMethod = "")
+        {
+            string prefix = paymentMethod switch
+            {
+                "Credit Card" => "CC",
+                "Bank Transfer" => "VIR",
+                "Check" => "CHQ",
+                "Cash" => "ESP",
+                "Direct Debit" => "PRE",
+                _ => "PAY" // Valeur par défaut
+            };
+            
+            return $"{prefix}-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 6).ToUpper()}";
+        }
     }
+
 
     public class PayInvoiceRequest
     {
