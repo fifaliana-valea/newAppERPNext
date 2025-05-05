@@ -50,7 +50,6 @@
 
                     <form asp-action="ProcessPayment" method="post" id="paymentForm">
                         <input type="hidden" asp-for="InvoiceName" />
-                        <input type="hidden" id="autoReference" value="@ViewBag.AutoReference" />
                         
                         <div class="form-group row">
                             <label asp-for="Amount" class="col-sm-4 col-form-label">Montant à payer</label>
@@ -75,6 +74,7 @@
                                     <option value="Check">Chèque</option>
                                     <option value="Cash">Espèces</option>
                                     <option value="Direct Debit">Prélèvement</option>
+                                    <option value="Custom">Personnalisé</option>
                                 </select>
                                 <span asp-validation-for="PaymentMethod" class="text-danger"></span>
                             </div>
@@ -83,9 +83,9 @@
                         <div class="form-group row" id="referenceGroup">
                             <label asp-for="ReferenceNumber" class="col-sm-4 col-form-label">Référence paiement</label>
                             <div class="col-sm-8">
-                                <input asp-for="ReferenceNumber" class="form-control" id="referenceInput" />
+                                <input asp-for="ReferenceNumber" class="form-control" id="referenceInput" readonly />
                                 <small class="form-text text-muted" id="referenceHelp">
-                                    Numéro de chèque, référence virement, etc.
+                                    Référence de paiement automatique
                                 </small>
                                 <span asp-validation-for="ReferenceNumber" class="text-danger"></span>
                             </div>
@@ -121,6 +121,23 @@
     
     <script>
         $(document).ready(function() {
+            // Fonction de génération de référence
+            function generatePaymentReference(paymentMethod = "") {
+                const prefixMap = {
+                    "Credit Card": "CC",
+                    "Bank Transfer": "VIR",
+                    "Check": "CHQ",
+                    "Cash": "ESP", 
+                    "Direct Debit": "PRE"
+                };
+                
+                const prefix = prefixMap[paymentMethod] || "PAY";
+                const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+                const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+                
+                return `${prefix}-${datePart}-${randomPart}`;
+            }
+
             // Formatage du montant
             $('#amountInput').on('blur', function() {
                 let value = parseFloat($(this).val()).toFixed(2);
@@ -131,16 +148,28 @@
             let today = new Date().toISOString().split('T')[0];
             $('#paymentDate').val(today);
 
-            // Définir la référence automatique pour tous les modes de paiement
-            $('#referenceInput').val($('#autoReference').val()).prop('readonly', true);
-            $('#referenceHelp').text("Référence de paiement automatique");
+            // Générer et définir la référence automatique
+            function updatePaymentReference() {
+                const method = $('#paymentMethodSelect').val();
+                const reference = generatePaymentReference(method);
+                $('#referenceInput').val(reference);
+            }
 
-            // Optionnel: Permettre la modification si nécessaire
+            // Initialiser la référence
+            updatePaymentReference();
+
+            // Mettre à jour la référence quand le mode de paiement change
             $('#paymentMethodSelect').change(function() {
-                const method = $(this).val();
-                if (method === "Custom") {  // Ajoutez un option "Custom" si vous voulez permettre la saisie manuelle
+                updatePaymentReference();
+                
+                // Permettre la modification si mode personnalisé
+                if ($(this).val() === "Custom") {
                     $('#referenceInput').val('').prop('readonly', false);
                     $('#referenceHelp').text("Saisissez votre référence manuellement");
+                } else {
+                    $('#referenceInput').prop('readonly', true);
+                    $('#referenceHelp').text("Référence de paiement automatique");
+                    updatePaymentReference();
                 }
             });
         });

@@ -75,15 +75,15 @@ namespace MonProjetErpnext.Controllers.PurchaseInvoice
                 // ViewBag.AutoReference = cashRef;
 
                         // Générer la référence automatique basée sur le type de paiement
-                var paymentRef = GeneratePaymentReference();
-                ViewBag.AutoReference = paymentRef;
+                // var paymentRef = GeneratePaymentReference();
+                // ViewBag.AutoReference = paymentRef;
 
                 var model = new PayInvoiceRequest
                 {
                     InvoiceName = invoiceName,
                     Amount = amountDue,
                     PaymentDate = DateTime.Now,
-                    ReferenceNumber = paymentRef // Pré-remplissage initial
+                    ReferenceNumber = "" // Pré-remplissage initial
                 };
 
                 return View(model);
@@ -101,25 +101,8 @@ namespace MonProjetErpnext.Controllers.PurchaseInvoice
         {
             try
             {
-                // Validation spécifique pour les espèces
-                if (request.PaymentMethod == "Espèces")
-                {
-                    if (!request.ReferenceNumber.StartsWith("ESP-"))
-                    {
-                        ModelState.AddModelError("ReferenceNumber", 
-                            "Les paiements en espèces doivent avoir une référence valide");
-                    }
-                    
-                    // Vous pouvez ajouter ici une logique pour vérifier l'unicité de la référence
-                }
-
                 if (!ModelState.IsValid)
                 {
-                    // Regénérer la référence si nécessaire
-                    if (request.PaymentMethod == "Espèces")
-                    {
-                        ViewBag.AutoReference = request.ReferenceNumber;
-                    }
                     return View("PayInvoice", request);
                 }
 
