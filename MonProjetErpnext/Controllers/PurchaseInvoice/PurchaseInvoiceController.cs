@@ -175,7 +175,7 @@ namespace MonProjetErpnext.Controllers.PurchaseInvoice
         }
 
         [HttpPost]
-        public async Task<IActionResult> DownloadPurchaseInvoicePdf(string invoiceName)
+        public async Task<IActionResult> DownloadPurchaseInvoicePdf([FromForm] string invoiceName)
         {
             if (string.IsNullOrEmpty(invoiceName))
             {
@@ -191,7 +191,7 @@ namespace MonProjetErpnext.Controllers.PurchaseInvoice
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error downloading PDF for invoice {InvoiceName}", invoiceName);
-                TempData["ErrorMessage"] = "Erreur lors du téléchargement";
+                TempData["ErrorMessage"] = $"Erreur lors du téléchargement: {ex.Message}";
                 return RedirectToAction("Index");
             }
         }
