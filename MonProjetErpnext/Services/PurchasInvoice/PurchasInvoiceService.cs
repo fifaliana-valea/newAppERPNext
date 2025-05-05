@@ -220,6 +220,13 @@ namespace MonProjetErpnext.Services.PurchasInvoice
                     return false;
                 }
 
+                // if (paymentInfo.Amount != outstandingAmount)
+                // {
+                //     _logger.LogError("Payment amount {PaymentAmount} does not match outstanding amount {OutstandingAmount} for invoice {InvoiceName}", 
+                //         paymentInfo.Amount, outstandingAmount, invoiceName);
+                //     return false;
+                // }
+
                 // 2. Get default accounts and payment methods
                 var defaultAccounts = await GetDefaultAccounts(company);
                 if (defaultAccounts == null)
@@ -311,7 +318,6 @@ namespace MonProjetErpnext.Services.PurchasInvoice
                     submitEndpoint, 
                     submitContent);
 
-                _logger.LogInformation("Status {ok}", submitResponse.ToString());
 
                 return true;
             }
