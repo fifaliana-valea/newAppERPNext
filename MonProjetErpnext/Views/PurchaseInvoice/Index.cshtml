@@ -413,43 +413,40 @@
 </div>
 @section Scripts{
 <script>
-    // Ajouter un écouteur d'événements pour chaque bouton de téléchargement
-    document.querySelectorAll('.download-btn').forEach(function(button) {
-        button.addEventListener('click', async function () {
-            // Récupérer le nom de la facture spécifique à partir de l'attribut `data-invoice-name`
-            var invoiceName = button.getAttribute('data-invoice-name'); 
-
-            if (!invoiceName) {
-                alert("Le nom de la facture est manquant.");
-                return;
-            }
-
-            try {
-                // Appel API pour récupérer le PDF de la facture
-                const response = await fetch('/PurchaseInvoice/DownloadPurchaseInvoicePdf', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(invoiceName),
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erreur lors du téléchargement du PDF.');
+        document.querySelectorAll('.download-btn').forEach(function(button) {
+            button.addEventListener('click', async function() {
+                var invoiceName = button.getAttribute('data-invoice-name');
+                
+                if (!invoiceName) {
+                    alert("Le nom de la facture est manquant.");
+                    return;
                 }
 
-                // Convertir la réponse en blob
-                const blob = await response.blob();
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `Facture_${invoiceName}.pdf`; // Nom du fichier PDF
-                link.click(); // Déclenche le téléchargement
-            } catch (error) {
-                console.error('Erreur lors de l\'appel API:', error);
-                alert('Erreur lors du téléchargement du PDF');
-            }
-        });
-    });
+                try {
+                    // Utilisez FormData au lieu de JSON.stringify
+                    const formData = new FormData();
+                    formData.append('invoiceName', invoiceName);
+
+                    const response = await fetch('/PurchaseInvoice/DownloadPurchaseInvoicePdf', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Erreur lors du téléchargement du PDF.');
+                    }
+
+                    const blob = await response.blob();
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `Facture_${invoiceName}.pdf`;
+                    link.click();
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors du téléchargement du PDF: ' + error.message);
+                }
+            });
+        });    
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".validate-btn").forEach(button => {
             button.addEventListener("click", async function () {
