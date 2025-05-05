@@ -128,6 +128,40 @@ namespace MonProjetErpnext.Controllers.Suppliers
             public decimal Quantity { get; set; }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ValidateInvoice(string invoiceName, string supplierId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(invoiceName))
+                {
+                    TempData["ErrorMessage"] = "Identifiant du devis manquant";
+                    return RedirectToAction("Index");
+                }
+
+                var result = await _supplierService.ValidateSupplierQuotation(invoiceName);
+                
+                if (result)
+                {
+                    TempData["SuccessMessage"] = $"Devis {invoiceName} validé avec succès";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = $"Échec de la validation du devis {invoiceName}";
+                }
+                
+                // Modification ici pour utiliser Query String au lieu de route param
+                return RedirectToAction("GetSupplierQuotations", "Suppliers", new { supplierId = supplierId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error validating supplier quotation {InvoiceName}", invoiceName);
+                TempData["ErrorMessage"] = "Erreur technique lors de la validation";
+                return RedirectToAction("Index");
+            }
+        }
+
+
 
 
 

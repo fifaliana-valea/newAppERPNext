@@ -45,6 +45,44 @@ namespace MonProjetErpnext.Services.Suppliers
             }
         }
 
+        public async Task<bool> ValidateSupplierQuotation(string quotationName)
+        {
+            try
+            {
+                var endpoint = $"/api/resource/Supplier%20Quotation/{quotationName}";
+                
+                var payload = new
+                {
+                    docstatus = 1, // 1 = Submitted
+                    status = "Submitted"
+                };
+
+                var content = new StringContent(
+                    JsonSerializer.Serialize(payload),
+                    Encoding.UTF8,
+                    "application/json");
+
+                var response = await _loginService.MakeAuthenticatedRequest(
+                    HttpMethod.Put, 
+                    endpoint, 
+                    content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Erreur API: {StatusCode} - {Error}", response.StatusCode, error);
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la validation du devis");
+                return false;
+            }
+        }
+
         public async Task<List<SupplierQuotation>> GetSupplierQuotationsWithItems(string supplierId)
         {
             if (string.IsNullOrWhiteSpace(supplierId))

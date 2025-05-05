@@ -113,6 +113,20 @@
             </div>
 
         </div>
+        <div class="card-footer bg-light">
+            @if (Model.Status == "Draft")
+            {
+                <button class="btn btn-primary validate-btn" 
+                    data-invoice-name="@Model.Name"
+                    data-invoice-supplier="@Model.SupplierName">
+                <i class="fas fa-check-circle"></i> Valider
+                </button>
+            }
+            else
+            {
+                <span class="badge bg-success">Déjà validé</span>
+            }
+        </div>
     </div>
 
     <!-- Pagination -->
@@ -146,6 +160,44 @@
 </div>
 @section Scripts {
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".validate-btn").forEach(button => {
+            button.addEventListener("click", async function () {
+                const invoiceName = this.dataset.invoiceName;
+                const supplierId = this.dataset.invoiceSupplier; // Renommé de Suppliers à supplierId
+
+                if (!invoiceName || !supplierId) {
+                    alert("Nom de devis ou fournisseur manquant");
+                    return;
+                }
+
+                const confirmation = confirm(`Voulez-vous vraiment valider le devis : ${invoiceName} ?`);
+                if (!confirmation) return;
+
+                try {
+                    const response = await fetch('/Suppliers/ValidateInvoice', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                        },
+                        body: `invoiceName=${encodeURIComponent(invoiceName)}&supplierId=${encodeURIComponent(supplierId)}`
+                    });
+
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        const html = await response.text();
+                        document.body.innerHTML = html;
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de la validation :", error);
+                    alert("Erreur lors de la validation du devis.");
+                }
+            });
+        });
+    });
+
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".update-btn").forEach(function (button) {
             button.addEventListener("click", function () {
@@ -239,9 +291,75 @@
         overflow: hidden;
     }
 
+.card-footer.bg-light {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1.25rem; /* Espacement légèrement augmenté */
+    padding: 1.25rem 1.75rem; /* Padding augmenté */
+    border-top: 1px solid var(--border-color);
+    background-color: #f8f9fa !important;
+}
+
+/* Style pour le badge "Déjà validé" - Version agrandie */
+.card-footer .badge {
+    padding: 0.5em 0.8em; /* Augmentation du padding */
+    font-size: 0.85em; /* Taille de police légèrement augmentée */
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: 5px; /* Bordure plus arrondie */
+    text-transform: uppercase;
+    min-width: 120px; /* Largeur minimale pour un meilleur équilibre */
+    text-align: center;
+}
+
+/* Style pour le bouton Valider - Version agrandie */
+.card-footer .validate-btn {
+    padding: 0.65rem 1.5rem; /* Padding augmenté */
+    font-size: 0.95rem; /* Taille de police augmentée */
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 5px; /* Bordure plus arrondie */
+    background: linear-gradient(to right, var(--primary-color), #7b6ce6);
+    color: white;
+    box-shadow: 0 3px 6px rgba(108, 92, 231, 0.3); /* Ombre plus prononcée */
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem; /* Espacement icône/texte augmenté */
+    min-width: 140px; /* Largeur minimale */
+    justify-content: center;
+}
+
+.card-footer .validate-btn:hover {
+    background: linear-gradient(to right, #5e4dd9, #6c5ce7);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(108, 92, 231, 0.4); /* Ombre hover plus visible */
+}
+
+.card-footer .validate-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(108, 92, 231, 0.3);
+}
+
+.card-footer .validate-btn i {
+    font-size: 1em; /* Taille d'icône légèrement augmentée */
+}
+
+
     .quotation-card:hover {
         box-shadow: 0 6px 25px rgba(108, 92, 231, 0.15);
         transform: translateY(-3px);
+    }
+
+    .quotation-card {
+    transition: all 0.3s ease;
+    }
+
+    .quotation-card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     }
 
     /* Effet de surbrillance sur la bordure gauche */
