@@ -19,7 +19,7 @@ namespace MonProjetErpnext.Controllers.Suppliers
     {
         private readonly ISupplierService _supplierService;
         private const int DefaultPageSize = 10;
-        private const int QuotationsPageSize = 1; // Un devis par page
+        // Un devis par page
 
         private readonly ILogger<SuppliersController> _logger;
 
@@ -57,45 +57,48 @@ namespace MonProjetErpnext.Controllers.Suppliers
         // Détails d'un devis avec pagination (1 devis par page)
         public async Task<IActionResult> GetSupplierQuotations(string supplierId, int page = 1)
         {
+            const int QuotationsPageSize = 3;
+
             if (string.IsNullOrWhiteSpace(supplierId))
             {
-                return BadRequest("L'identifiant du fournisseur est requis");
+                return BadRequest("L'identifiant du fournisseur est requis.");
             }
 
             try
             {
                 var allQuotations = await _supplierService.GetSupplierQuotationsWithItems(supplierId);
-                
-                // Pagination - un seul devis par page
-                var quotation = allQuotations
-                    .OrderByDescending(q => q.TransactionDate)
-                    .Skip(page - 1)
-                    .FirstOrDefault();
 
-                if (quotation == null)
+                if (allQuotations == null || !allQuotations.Any())
                 {
-                    return NotFound("Aucun devis trouvé pour ce fournisseur");
+                    return NotFound("Aucun devis trouvé pour ce fournisseur.");
                 }
+
+                var paginatedQuotations = allQuotations
+                    .OrderByDescending(q => q.TransactionDate)
+                    .Skip((page - 1) * QuotationsPageSize)
+                    .Take(QuotationsPageSize)
+                    .ToList();
 
                 ViewBag.CurrentPage = page;
                 ViewBag.PageSize = QuotationsPageSize;
                 ViewBag.TotalItems = allQuotations.Count;
-                ViewBag.TotalPages = allQuotations.Count; // 1 item = 1 page
+                ViewBag.TotalPages = (int)Math.Ceiling((double)allQuotations.Count / QuotationsPageSize);
                 ViewBag.SupplierId = supplierId;
                 ViewBag.ErpNextBaseUrl = _configuration["ErpNext:BaseUrl"];
 
-
-                return View("Quotations", quotation);
+                return View("Quotations", paginatedQuotations);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erreur lors de la récupération des devis");
-                return View("Error", new ErrorViewModel { 
+                _logger.LogError(ex, "Erreur lors de la récupération des devis.");
+                return View("Error", new ErrorViewModel
+                {
                     RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
-                    ErrorMessage = ex.Message 
+                    ErrorMessage = ex.Message
                 });
             }
         }
+
 
         [HttpPost]
         public async Task<IActionResult> UpdateQuotationItemRate([FromBody] QuotationItemRateDto data)
