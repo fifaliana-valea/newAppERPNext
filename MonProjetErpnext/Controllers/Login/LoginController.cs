@@ -1,53 +1,80 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using MonProjetErpnext.Models.Request;
+using MonProjetErpnext.Services.Login;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace MonProjetErpnext.Controllers.Login
 {
     public class LoginController : Controller
     {
+        private readonly ILoginService _loginService;
+        private readonly ILogger<LoginController> _logger;
+
+        public LoginController(
+            ILoginService loginService, 
+            ILogger<LoginController> logger)
+        {
+            _loginService = loginService;
+            _logger = logger;
+        }
 
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index(string returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
-
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Index(string username, string password, bool remember)
+        public async Task<IActionResult> Login(AuthRequest authRequest, string returnUrl = null)
         {
-            if (string.IsNullOrEmpty(username))
-            {
-                ModelState.AddModelError("username", "Le nom d'utilisateur est requis");
-            }
+            if (!ModelState.IsValid)
+                return View("Index", authRequest);
 
-            if (string.IsNullOrEmpty(password))
+            try
             {
-                ModelState.AddModelError("password", "Le mot de passe est requis");
-            }
+                var authResponse = await _loginService.LoginAsync(authRequest);
 
-            if (ModelState.IsValid)
-            {
+                if (authResponse == null || authResponse.Message != "Logged In")
+                {
+                    ModelState.AddModelError(string.Empty, "Identifiants invalides");
+                    return View("Index", authRequest);
+                }
+
+                _logger.LogInformation("Utilisateur connecté: {FullName}", authResponse.FullName);
+                HttpContext.Session.SetString("FullName", authResponse.FullName);
+                _logger.LogInformation("Utilisateur connecté 2: {FullName}", HttpContext.Session.GetString("FullName"));
                 
-                if (username == "admin" && password == "password")
-                {
-                    if (remember)
-                    {
-                        Response.Cookies.Append("RememberMe", "true", new CookieOptions
-                        {
-                            Expires = DateTime.Now.AddDays(30)
-                        });
-                    }
-
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Identifiants incorrects");
-                }
+                return LocalRedirect(returnUrl ?? "/Home");
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la connexion");
+                ModelState.AddModelError(string.Empty, "Erreur lors de la connexion");
+                return View("Index", authRequest);
+            }
+        }
 
-            return View();
+        [HttpGet]
+        public async Task<IActionResult> Logout()
+        {
+            try
+            {
+                await _loginService.MakeAuthenticatedRequest(HttpMethod.Get, "/api/method/logout");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la déconnexion d'ERPNext");
+            }
+            
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Clear();
+            
+            return RedirectToAction("Index");
         }
     }
 }
