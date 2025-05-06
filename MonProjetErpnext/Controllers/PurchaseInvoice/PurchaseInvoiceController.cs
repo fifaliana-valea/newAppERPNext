@@ -69,15 +69,6 @@ namespace MonProjetErpnext.Controllers.PurchaseInvoice
                     TempData["ErrorMessage"] = "Identifiant de facture manquant";
                     return RedirectToAction("Index");
                 }
-
-                // Générer la référence automatique pour espèces
-                // var cashRef = $"ESP-{DateTime.Now:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}";
-                // ViewBag.AutoReference = cashRef;
-
-                        // Générer la référence automatique basée sur le type de paiement
-                // var paymentRef = GeneratePaymentReference();
-                // ViewBag.AutoReference = paymentRef;
-
                 var model = new PayInvoiceRequest
                 {
                     InvoiceName = invoiceName,
