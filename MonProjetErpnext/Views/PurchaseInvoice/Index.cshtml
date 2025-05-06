@@ -274,89 +274,88 @@
                 </div>
 
 
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="mb-3">
-                                <span class="info-label">Date:</span>
-                                <p class="info-value">@invoice.PostingDate</p>
-                            </div>
-                            <div class="mb-3">
-                                <span class="info-label">Échéance:</span>
-                                <p class="info-value">@invoice.DueDate</p>
-                            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <span class="info-label">Date:</span>
+                            <p class="info-value">@invoice.PostingDate</p>
                         </div>
-                        <div class="col-md-3">
-                            <div class="mb-3">
-                                <span class="info-label">Total:</span>
-                                <p class="info-value">@invoice.Total.ToString("C")</p>
-                            </div>
-                            <div class="mb-3">
-                                <span class="info-label">Total général:</span>
-                                <p class="info-value">@invoice.GrandTotal.ToString("C")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-3">
-                                <span class="info-label">Montant dû:</span>
-                                <p class="info-value @(invoice.OutstandingAmount > 0 ? "amount-negative" : "amount-positive")">
-                                    @invoice.OutstandingAmount.ToString("C")
-                                </p>
-                            </div>
-                            <div class="mb-3">
-                                <span class="info-label">Devise:</span>
-                                <p class="info-value">@invoice.Currency</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-3">
-                                <span class="info-label">Société:</span>
-                                <p class="info-value">@invoice.Company</p>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <span class="info-label">Payé:</span>
-                                    <p class="info-value">@(invoice.IsPaid ? "Oui" : "Non")</p>
-                                </div>
-                            </div>
+                        <div class="mb-3">
+                            <span class="info-label">Échéance:</span>
+                            <p class="info-value">@invoice.DueDate</p>
                         </div>
                     </div>
-
-                    <div class="items-table-container">
-                        <h6 class="mt-4 mb-3"><i class="fas fa-boxes"></i> Articles</h6>
-                        <div class="table-responsive scrollable-table">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Code</th>
-                                        <th>Désignation</th>
-                                        <th>Description</th>
-                                        <th>Quantité</th>
-                                        <th>Prix Unitaire</th>
-                                        <th>Montant</th>
-                                        <th>Unité</th>
-                                        <th>Centre de coût</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in invoice.Items)
-                                    {
-                                        <tr>
-                                            <td>@item.ItemCode</td>
-                                            <td>@item.ItemName</td>
-                                            <td>@item.Description</td>
-                                            <td>@item.Quantity.ToString("N2")</td>
-                                            <td>@item.Rate.ToString("C")</td>
-                                            <td>@item.Amount.ToString("C")</td>
-                                            <td>@item.UnitOfMeasure</td>
-                                            <td>@item.CostCenter</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <span class="info-label">Total:</span>
+                            <p class="info-value">@invoice.Total</p>
+                        </div>
+                        <div class="mb-3">
+                            <span class="info-label">Total général:</span>
+                            <p class="info-value">@invoice.GrandTotal</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <span class="info-label">Montant dû:</span>
+                            <p class="info-value @(invoice.OutstandingAmount > 0 ? "amount-negative" : "amount-positive")">
+                                @invoice.OutstandingAmount
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <span class="info-label">Devise:</span>
+                            <p class="info-value">@invoice.Currency</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <span class="info-label">Société:</span>
+                            <p class="info-value">@invoice.Company</p>
+                        </div>
+                        <div class="mb-3">
+                            <span class="info-label">Payé:</span>
+                            <p class="info-value">@(invoice.IsPaid ? "Oui" : "Non")</p>
                         </div>
                     </div>
                 </div>
+
+                <div class="items-table-container">
+                    <h6 class="mt-4 mb-3"><i class="fas fa-boxes"></i> Articles</h6>
+                    <div class="table-responsive scrollable-table">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Désignation</th>
+                                    <th>Description</th>
+                                    <th>Quantité</th>
+                                    <th>Prix Unitaire</th>
+                                    <th>Montant</th>
+                                    <th>Unité</th>
+                                    <th>Centre de coût</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in invoice.Items)
+                                {
+                                    <tr>
+                                        <td>@item.ItemCode</td>
+                                        <td>@item.ItemName</td>
+                                        <td>@item.Description</td>
+                                        <td>@item.Quantity.ToString("N2")</td>
+                                        <td>@item.Rate</td>
+                                        <td>@item.Amount</td>
+                                        <td>@item.UnitOfMeasure</td>
+                                        <td>@item.CostCenter</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
                 <div class="card-footer invoice-card-footer d-flex justify-content-end">
                     @if (invoice.CanValidate)
                     {

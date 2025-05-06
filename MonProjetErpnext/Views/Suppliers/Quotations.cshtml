@@ -37,7 +37,7 @@
                     </div>
                     <div class="col-md-3 mb-3">
                         <span class="info-label"><i class="fas fa-money-bill-wave"></i> Total:</span>
-                        <p class="info-value">@quotation.Total.ToString("C")</p>
+                        <p class="info-value">@quotation.Total</p>
                     </div>
                     <div class="col-md-3 mb-3">
                         <span class="info-label"><i class="fas fa-coins"></i> Devise:</span>
@@ -85,10 +85,10 @@
                                         }
                                         else
                                         {
-                                            @item.Rate.ToString("C")
+                                            @item.Rate
                                         }
                                     </td>
-                                    <td>@((item.Quantity * item.Rate).ToString("C"))</td>
+                                    <td>@(item.Quantity * item.Rate)</td>
                                     @if (quotation.Status == "Draft")
                                     {
                                         <td>

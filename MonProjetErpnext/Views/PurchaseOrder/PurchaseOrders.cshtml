@@ -295,7 +295,7 @@
 <div class="container mt-4">
     <div class="row mb-4">
         <div class="col-md-12">
-            <h2><i class="fas fa-file-invoice-dollar"></i> @ViewData["Title"]</h2>
+            <h2><i class="fas fa-file-order-dollar"></i> @ViewData["Title"]</h2>
         </div>
     </div>
 
@@ -357,11 +357,11 @@
                     <div class="col-md-4">
                         <div class="mb-3">
                             <span class="info-label">Total:</span>
-                            <p class="info-value">@order.Total.ToString("C")</p>
+                            <p class="info-value">@order.Total</p>
                         </div>
                         <div class="mb-3">
                             <span class="info-label">Total général:</span>
-                            <p class="info-value">@order.GrandTotal.ToString("C")</p>
+                            <p class="info-value">@order.GrandTotal</p>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -397,9 +397,9 @@
                                     <tr>
                                         <td>@item.ItemCode</td>
                                         <td>@item.ItemName</td>
-                                        <td>@item.Quantity.ToString("N2") @item.UnitOfMeasure</td>
-                                        <td>@item.Rate.ToString("C")</td>
-                                        <td>@item.Amount.ToString("C")</td>
+                                        <td>@item.Quantity.ToString("N2")  @item.UnitOfMeasure</td>
+                                        <td>@item.Rate</td>
+                                        <td>@item.Amount</td>
                                         <td>@item.Warehouse</td>
                                         <td>@item.ExpectedDeliveryDate</td>
                                     </tr>
