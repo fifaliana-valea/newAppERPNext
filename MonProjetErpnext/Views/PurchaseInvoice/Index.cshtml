@@ -372,10 +372,11 @@
                         <a asp-action="PayInvoice" 
                         asp-controller="PurchaseInvoice" 
                         asp-route-invoiceName="@invoice.Name"
-                        asp-route-amountDue="@invoice.OutstandingAmount"
+                        asp-route-amountDue="@invoice.OutstandingAmount.ToString(System.Globalization.CultureInfo.InvariantCulture)"
                         class="btn btn-success">
-                            Payer
+                        Payer
                         </a>
+
                     }
                 </div>
             </div>

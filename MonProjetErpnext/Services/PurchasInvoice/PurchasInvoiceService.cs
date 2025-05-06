@@ -238,35 +238,34 @@ namespace MonProjetErpnext.Services.PurchasInvoice
                 var paymentEndpoint = "/api/resource/Payment%20Entry";
                 
                 var paymentPayload = new
-                {
-                    doctype = "Payment Entry",
-                    docstatus = 1,
-                    payment_type = "Pay",
-                    party_type = "Supplier",
-                    party = supplier,
-                    company = company,
-                    paid_amount = outstandingAmount,
-                    received_amount = outstandingAmount,
-                    source_exchange_rate = 1.0m,
-                    paid_from = defaultAccounts.PaidFromAccount,
-                    paid_from_account_currency = currency,
-                    paid_to = defaultAccounts.PaidToAccount,
-                    paid_to_account_currency = currency,
-                    mode_of_payment = paymentInfo.PaymentMethod,
-                    reference_no = paymentInfo.ReferenceNumber,
-                    reference_date = paymentInfo.PaymentDate.ToString("yyyy-MM-dd"),
-                    references = new[]
                     {
-                        new
+                        doctype = "Payment Entry",
+                        docstatus = 1,
+                        payment_type = "Pay",
+                        party_type = "Supplier",
+                        party = supplier,
+                        company = company,
+                        paid_amount = paymentInfo.Amount,
+                        received_amount = paymentInfo.Amount,
+                        source_exchange_rate = 1.0m,
+                        paid_from = defaultAccounts.PaidFromAccount,
+                        paid_from_account_currency = currency,
+                        paid_to = defaultAccounts.PaidToAccount,
+                        paid_to_account_currency = currency,
+                        mode_of_payment = paymentInfo.PaymentMethod,
+                        reference_no = paymentInfo.ReferenceNumber,
+                        reference_date = paymentInfo.PaymentDate.ToString("yyyy-MM-dd"),
+                        references = new[]
                         {
-                            reference_doctype = "Purchase Invoice",
-                            reference_name = invoiceName,
-                            total_amount = grandTotal,
-                            outstanding_amount = outstandingAmount,
-                            allocated_amount = outstandingAmount
+                            new {
+                                reference_doctype = "Purchase Invoice",
+                                reference_name = invoiceName,
+                                total_amount = grandTotal,
+                                outstanding_amount = outstandingAmount,
+                                allocated_amount = paymentInfo.Amount
+                            }
                         }
-                    }
-                };
+                    };
 
                 var paymentContent = new StringContent(
                     JsonSerializer.Serialize(paymentPayload, options),
