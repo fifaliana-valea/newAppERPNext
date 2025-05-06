@@ -61,7 +61,15 @@ namespace MonProjetErpnext.Controllers.Suppliers
 
             if (string.IsNullOrWhiteSpace(supplierId))
             {
-                return BadRequest("L'identifiant du fournisseur est requis.");
+                TempData["ErrorMessage"] = "L'identifiant du fournisseur est requis.";
+                ViewBag.CurrentPage = page;
+                ViewBag.PageSize = QuotationsPageSize;
+                ViewBag.TotalItems = 0;
+                ViewBag.TotalPages = 0;
+                ViewBag.SupplierId = supplierId;
+                ViewBag.ErpNextBaseUrl = _configuration["ErpNext:BaseUrl"];
+
+                return View("Quotations", new List<SupplierQuotation>());
             }
 
             try
@@ -70,7 +78,15 @@ namespace MonProjetErpnext.Controllers.Suppliers
 
                 if (allQuotations == null || !allQuotations.Any())
                 {
-                    return NotFound("Aucun devis trouvé pour ce fournisseur.");
+                    TempData["ErrorMessage"] = "Aucun devis trouvé pour ce fournisseur.";
+                    ViewBag.CurrentPage = page;
+                    ViewBag.PageSize = QuotationsPageSize;
+                    ViewBag.TotalItems = 0;
+                    ViewBag.TotalPages = 0;
+                    ViewBag.SupplierId = supplierId;
+                    ViewBag.ErpNextBaseUrl = _configuration["ErpNext:BaseUrl"];
+
+                    return View("Quotations", new List<SupplierQuotation>());
                 }
 
                 var paginatedQuotations = allQuotations
@@ -98,6 +114,7 @@ namespace MonProjetErpnext.Controllers.Suppliers
                 });
             }
         }
+
 
 
         [HttpPost]
