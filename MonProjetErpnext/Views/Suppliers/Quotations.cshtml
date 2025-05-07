@@ -20,8 +20,9 @@
         <div class="alert alert-danger">
             @TempData["ErrorMessage"]
         </div>
-    }else{
-
+    }
+    else
+    {
         @foreach (var quotation in Model)
         {
             <div class="card shadow quotation-card mb-4">
@@ -120,9 +121,8 @@
                 </div>
             </div>
         }
-        <!-- Carte principale du devis -->
 
-            <!-- Pagination -->
+        <!-- Pagination -->
         <div class="row mt-4 pagination-container">
             <div class="col-md-12">
                 <nav aria-label="Page navigation">
@@ -150,17 +150,58 @@
             </div>
         </div>
     }
-
-
-
 </div>
+
 @section Scripts {
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // Validation de tous les devis
+        document.querySelector(".validate-all-btn")?.addEventListener("click", async function() {
+            const draftQuotations = Array.from(document.querySelectorAll(".validate-btn"))
+                .map(btn => ({
+                    name: btn.dataset.invoiceName,
+                    supplier: btn.dataset.invoiceSupplier
+                }));
+
+            if (draftQuotations.length === 0) {
+                alert("Aucun devis à valider");
+                return;
+            }
+
+            const confirmation = confirm(`Voulez-vous vraiment valider ${draftQuotations.length} devis ?`);
+            if (!confirmation) return;
+
+            try {
+                const response = await fetch('/Suppliers/ValidateMultipleInvoices', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: JSON.stringify({
+                        invoices: draftQuotations
+                    })
+                });
+
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else if (response.ok) {
+                    location.reload();
+                } else {
+                    const error = await response.text();
+                    alert("Erreur lors de la validation: " + error);
+                }
+            } catch (error) {
+                console.error("Erreur lors de la validation :", error);
+                alert("Erreur lors de la validation des devis.");
+            }
+        });
+
+        // Validation d'un seul devis
         document.querySelectorAll(".validate-btn").forEach(button => {
             button.addEventListener("click", async function () {
                 const invoiceName = this.dataset.invoiceName;
-                const supplierId = this.dataset.invoiceSupplier; // Renommé de Suppliers à supplierId
+                const supplierId = this.dataset.invoiceSupplier;
 
                 if (!invoiceName || !supplierId) {
                     alert("Nom de devis ou fournisseur manquant");
@@ -192,9 +233,8 @@
                 }
             });
         });
-    });
 
-    document.addEventListener("DOMContentLoaded", function () {
+        // Mise à jour des taux
         document.querySelectorAll(".update-btn").forEach(function (button) {
             button.addEventListener("click", function () {
                 const row = button.closest("tr");
@@ -225,7 +265,6 @@
                 .then(data => {
                     if (data.success) {
                         alert("Prix mis à jour avec succès !");
-                        // Optionnel : Rafraîchir la page ou recalculer le montant
                         location.reload();
                     } else {
                         alert("Erreur : " + data.message);
@@ -239,9 +278,7 @@
         });
     });
 </script>
-
 }
-
 
 @functions {
     string GetStatusBadgeClass(string status)
